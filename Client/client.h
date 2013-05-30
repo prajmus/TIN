@@ -6,7 +6,7 @@ class Client
 protected:
     Client();
 public:
-    Client& getInstance();
+    static Client& getInstance();
     void showStatus();
     void connectToServer();
 };

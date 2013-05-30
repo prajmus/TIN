@@ -12,7 +12,7 @@ protected:
 
 public:
     void run();
-    CommandParser& getInstance();
+    static CommandParser& getInstance();
 
 };
 

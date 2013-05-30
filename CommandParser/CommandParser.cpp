@@ -2,6 +2,7 @@
 #include "CommandParser.h"
 
 #include <sstream>
+#include <iostream>
 
 CommandParser::CommandParser()
 {
