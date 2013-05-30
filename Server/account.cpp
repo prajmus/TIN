@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <QMutexLocker>
-#include <iostream>
 
 void Account::dbExport()
 {
@@ -20,12 +19,10 @@ Account::Account(int userid)
                                             .arg(userid), 2);
     accName = results[0][0];
     accPassword = results[0][1];
-    //std::cout << accName << std::endl;
 }
 
 Account::~Account()
 {
-    //std::cout << "Account " << accName << " unloaded" << std::endl;
 }
 
 QString Account::getName()
