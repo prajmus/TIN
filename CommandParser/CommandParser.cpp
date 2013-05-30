@@ -23,6 +23,7 @@ void CommandParser::run()
         }
         // Wyjscie z programu
         if (command == "exit" || command == "quit") {
+            //Server.terminateClient();
             return;
         }
 
@@ -46,7 +47,9 @@ void CommandParser::run()
                 }
             }
 
-
+        }
+        else if (command.substr(0,6) == "status") {
+            //Client.showStatus();
         }
     }
 }
