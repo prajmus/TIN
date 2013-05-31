@@ -19,7 +19,7 @@ Client& Client::getInstance()
 
 void Client::connectToServer()
 {
-
+    std::cout << "Connected to server\n";
 }
 
 void Client::terminateClient()
@@ -35,7 +35,7 @@ bool Client::loginAvailable(QString login)
 
 void Client::registerUser(QString login, QString password)
 {
-    std::cout << "User regisitered";
+    std::cout << "User regisitered\n";
 }
 
 void Client::showStatus()
