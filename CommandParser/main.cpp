@@ -2,13 +2,17 @@
 
 #include "CommandParser.h"
 
+#include <iostream>
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    
-    CommandParser &cp = CommandParser::getInstance();
 
-    cp.run();
+    std::cout << "main()\n";
+    
+    CommandParser::getInstance().run();
+
+    //std::cout << "koniec run'a\n";
 
     return a.exec();
 }
