@@ -10,13 +10,13 @@ FileServer::FileServer()
 void FileServer::addWatcher(QString path)
 {
     QMutexLocker locker(&mutex);
-    watchers.insert(path, new FileSystemWatcher(path));
+    watchers.insert(std::make_pair(path, new FileSystemWatcher(path)));
 }
 
 void FileServer::removeWatcher(QString path)
 {
     QMutexLocker locker(&mutex);
-    watchers.remove(path);
+    watchers.erase(watchers.find(path));
 }
 
 FileInfo &FileServer::prvGetFileInfo(QString path)
@@ -33,16 +33,17 @@ FileInfo &FileServer::getFileInfo(QString path)
 void FileServer::addFileToList(QString path, int id)
 {
     QMutexLocker locker(&mutex);
-    files.insert(path, new FileInfo(path, id));
+    files.insert(std::make_pair(path, new FileInfo(path, id)));
     addWatcher(path);
 }
 
 bool FileServer::removeFileFromList(QString path)
 {
     QMutexLocker locker(&mutex);
-    if (!files.remove(path)) {
+    if (files.find(path) == files.end()) {
         return false;
     }
+    files.erase(files.find(path));
     removeWatcher(path);
     return true;
 }

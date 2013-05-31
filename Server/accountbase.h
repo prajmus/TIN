@@ -10,19 +10,19 @@
 
 class AccountBase
 {
-    std::map< int, QSharedPointer<Account> > base;
+    std::map< QString, QSharedPointer<Account> > base;
     QMutex baseMutex;
-    bool prvExists(int id);
-    bool prvVerify(int id, QString password);
-    Account& prvGetAccount(int id);
+    bool prvExists(QString username);
+    bool prvVerify(QString username, QString password);
+    Account &prvGetAccount(QString username);
 protected:
     AccountBase();
 public:
-    bool exists(int id);
-    bool verify(int id, QString password);
-    Account &getAccount(int id);
+    bool exists(QString username);
+    bool verify(QString username, QString password);
+    Account &getAccount(QString username);
     bool registerUser(QString username, QString password);
-    bool deleteUser(int id);
+    bool deleteUser(QString username);
     static AccountBase &getInstance();
 };
 

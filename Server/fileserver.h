@@ -1,7 +1,7 @@
 #ifndef FILESERVER_H
 #define FILESERVER_H
 
-#include <QMap>
+#include <map>
 #include <QSharedPointer>
 #include <QMutex>
 #include "filesystemwatcher.h"
@@ -9,8 +9,8 @@
 
 class FileServer
 {
-    QMap< QString, QtSharedPointer<FileSystemWatcher> > watchers;
-    QMap< QString, QSharedPointer<FileInfo> > files;
+    std::map< QString, QSharedPointer<FileSystemWatcher> > watchers;
+    std::map< QString, QSharedPointer<FileInfo> > files;
     QMutex mutex;
     void addWatcher(QString path);
     void removeWatcher(QString path);

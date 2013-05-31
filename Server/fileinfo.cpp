@@ -17,5 +17,5 @@ QString FileInfo::getPath()
 int FileInfo::getId()
 {
     QMutexLocker locker(&mutex);
-    return id;
+    return lastModifierId;
 }

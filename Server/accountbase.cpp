@@ -17,40 +17,40 @@ AccountBase::AccountBase()
     }
 }
 
-bool AccountBase::prvExists(int id)
+bool AccountBase::prvExists(QString username)
 {
-    return base.find(id) != base.end();
+    return base.find(username) != base.end();
 }
 
-bool AccountBase::exists(int id)
+bool AccountBase::exists(QString username)
 {
     QMutexLocker locker(&baseMutex);
-    return prvExists(id);
+    return prvExists(username);
 }
 
-bool AccountBase::prvVerify(int id, QString password)
+bool AccountBase::prvVerify(QString username, QString password)
 {
-    if (base.find(id) == base.end())
+    if (base.find(username) == base.end())
         return false;
-    return base.find(id)->second->verify(password);
+    return base.find(username)->second->verify(password);
 }
 
-bool AccountBase::verify(int id, QString password)
+bool AccountBase::verify(QString username, QString password)
 {
     QMutexLocker locker(&baseMutex);
-    return prvVerify(id, password);
+    return prvVerify(username, password);
 }
 
-Account &AccountBase::prvGetAccount(int id)
+Account &AccountBase::prvGetAccount(QString username)
 {
     //assert(base.find(id) != base.end());
-    return *(base.find(id)->second);
+    return *(base.find(username)->second);
 }
 
-Account &AccountBase::getAccount(int id)
+Account &AccountBase::getAccount(QString username)
 {
     QMutexLocker locker(&baseMutex);
-    return prvGetAccount(id);
+    return prvGetAccount(username);
 }
 
 bool AccountBase::registerUser(QString username, QString password)
@@ -64,15 +64,15 @@ bool AccountBase::registerUser(QString username, QString password)
     return true;
 }
 
-bool AccountBase::deleteUser(int id)
+bool AccountBase::deleteUser(QString username)
 {
     QMutexLocker locker(&baseMutex);
-    if (!prvExists(id)) {
+    if (!prvExists(username)) {
         return false;
     }
-    Database::getInstance().makeQuery(QString("DELETE FROM accounts WHERE id = '%1'")
-                                  .arg(id), 0);
-    base.erase(base.find(id));
+    Database::getInstance().makeQuery(QString("DELETE FROM accounts WHERE name = '%1'")
+                                  .arg(username), 0);
+    base.erase(base.find(username));
     return true;
 }
 

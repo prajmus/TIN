@@ -4,13 +4,11 @@
 #include "accountbase.h"
 #include "md5.h"
 #include <iostream>
+#include "filesystemwatcher.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
-
-
 
 //    AccountBase::getInstance();
 //    QString str = QString::fromStdString(md5("test"));

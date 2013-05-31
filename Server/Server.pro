@@ -19,10 +19,16 @@ SOURCES += main.cpp \
     database.cpp \
     accountbase.cpp \
     account.cpp \
-    md5.cpp
+    md5.cpp \
+    filesystemwatcher.cpp \
+    fileserver.cpp \
+    fileinfo.cpp
 
 HEADERS += \
     database.h \
     accountbase.h \
     account.h \
-    md5.h
+    md5.h \
+    filesystemwatcher.h \
+    fileserver.h \
+    fileinfo.h
