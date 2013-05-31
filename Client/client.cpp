@@ -17,30 +17,57 @@ Client& Client::getInstance()
     return instance;
 }
 
-void Client::showStatus() {
+void connectToServer()
+{
+
+}
+
+void terminateClient()
+{
+    std::cout << "Sending server signal to terminate connection with client\n";
+}
+
+bool loginAvailable(QString login)
+{
+    std::cout << "Login available\n";
+    return true;
+}
+
+void registerUser(QString login, QString password)
+{
+    std::cout << "User regisitered";
+}
+
+void Client::showStatus()
+{
     std::cout << "Status usera i katalogu.\n";
 }
 
-void Client::showMonitoredFiles() {
+void Client::showMonitoredFiles()
+{
     std::cout << "List of monitored files:\n";
 }
 
 
-void Client::showManageUsage() {
+void Client::showManageUsage()
+{
     std::cout << "Manage help:\n";
 }
 
 
-void Client::showFolderUsers() {
+void Client::showFolderUsers()
+{
     std::cout << "List of users with access to this folder:\n";
 }
 
-void Client::addFolderUser(QString login) {
+void Client::addFolderUser(QString login)
+{
     //TcpClient.addFolderUser(QString login);
-    std::cout << "User ";// << login << " added to shared folder!\nTo list users, type manage.list\n";
+    std::cout << "User added\n";// << login << " added to shared folder!\nTo list users, type manage.list\n";
 }
 
-void Client::removeFolderUser(QString login) {
+void Client::removeFolderUser(QString login)
+{
     //TcpClient.removeFolderUser(QString login);
-    std::cout << "User ";// << login << " removed from shared folder!\nTo list users, type manage.list\n";
+    std::cout << "User removed\n";// << login << " removed from shared folder!\nTo list users, type manage.list\n";
 }

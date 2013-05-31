@@ -13,6 +13,7 @@ public:
     static Client& getInstance();
 
     void connectToServer();
+    void terminateClient();
     bool loginAvailable(QString login);
     void registerUser(QString login, QString password);
 
