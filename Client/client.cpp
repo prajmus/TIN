@@ -40,7 +40,7 @@ void Client::registerUser(QString login, QString password)
 
 void Client::showStatus()
 {
-    std::cout << "Status usera i katalogu.\n";
+    std::cout << "User's and catalogue's status.\n";
 }
 
 void Client::showMonitoredFiles()
