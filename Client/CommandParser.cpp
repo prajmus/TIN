@@ -4,6 +4,8 @@
 
 #include <sstream>
 #include <iostream>
+#include <QString>
+#include <QStringList>
 
 CommandParser::CommandParser()
 {
@@ -12,8 +14,14 @@ CommandParser::CommandParser()
 
 void CommandParser::run()
 {
+    QString command;
+    QStringList list;
+
     while(true) {
         getLine(command);
+        list = command.split(' ', QString::SkipEmptyParts);
+        command = list.takeFirst();
+
         // Pusta komenda
         if (command.size() == 0) {
             std::cout << "pusta komenda\n";
@@ -43,10 +51,10 @@ void CommandParser::run()
              Client::getInstance().showFolderUsers();
         }
         else if (command == "manage.add") {
-             Client::getInstance().addFolderUser(command);
+             Client::getInstance().addFolderUser(list);
         }
         else if (command == "manage.remove") {
-             Client::getInstance().removeFolderUser(command);
+             Client::getInstance().removeFolderUser(list);
         }
         else {
             std::cout << "I co teraz?\n";

@@ -1,0 +1,15 @@
+#ifndef COMMANDPARSER_H
+#define COMMANDPARSER_H
+
+class CommandParser
+{
+protected:
+    CommandParser();
+
+public:
+    void run();
+    static CommandParser& getInstance();
+
+};
+
+#endif // COMMANDPARSER_H
