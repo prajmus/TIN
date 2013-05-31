@@ -12,14 +12,14 @@ class FileTransferServer : public QObject
 {
   Q_OBJECT
   public:
-    FileTransferServer(int numberOfConnections, quint64 fileSize);
+    FileTransferServer();
     ~FileTransferServer();
 
-    bool startFileServer(const &QHostAddress = QHostAddress::Any, quint16 port = 0);
+    bool startFileServer(const QHostAddress& address = QHostAddress::Any, quint16 port = 0);
 
     QHostAddress getAddress();
     quint16 getPort();
-    inline bool isRunning() { return (!state == OFFLINE); }
+    inline bool isRunning() { return (!state_ == OFFLINE); }
 
   signals:
     void serverStarted();
@@ -29,37 +29,38 @@ class FileTransferServer : public QObject
     void addNewConnection();
     void readDataSlot();
     void socketDisconnected();
-    void socketError();
+    void socketError(QAbstractSocket::SocketError error);
     void threadFinished();
     void sendInitialization();
+    void stopAll();
   private:
 
     //! The server socket
-    QTcpServer *server;
+    QTcpServer *server_;
 
     //! Pointer to the thread that created the object
-    QThread *creatorThread;
+    QThread *creatorThread_;
 
     //! Thread used to handle file transfer
-    QThread *additionalThread;
+    QThread additionalThread_;
 
     //! List of connected clients
-    QList<QTcpSocket* > clientList;
+    QTcpSocket* clientList_;
 
     //! Number of connected clients
-    int numberOfConnections;
+    int numberOfConnections_;
 
     //! Address of server
-    QHostAddress address;
+    QHostAddress address_;
 
     //! Port number
-    quint16 port;
+    quint16 port_;
 
     //! Size of file to be transfered
-    quint64 fileSize;
+    quint64 fileSize_;
 
     //! Current size of transfered file
-    quint64 currentSize;
+    quint64 currentSize_;
 
     //! State of server
     enum State {
@@ -79,7 +80,7 @@ class FileTransferServer : public QObject
       CLOSING
     };
 
-    State state;
+    State state_;
 
 };
 

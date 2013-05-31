@@ -1,5 +1,9 @@
 #include "filetransferserver.h"
+#include <QEventLoop>
+#include <QTimer>
+#include <QDebug>
 
-FileTransferServer::FileTransferServer(int numberOfConnections, quint64 fileSize)
+FileTransferServer::FileTransferServer()
 {
+
 }
