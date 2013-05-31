@@ -1,18 +1,14 @@
 #ifndef COMMANDPARSER_H
 #define COMMANDPARSER_H
 
-#include <string>
-
 class CommandParser
 {
-    std::string command;
-
 protected:
     CommandParser();
 
 public:
     void run();
-    CommandParser& getInstance();
+    static CommandParser& getInstance();
 
 };
 
