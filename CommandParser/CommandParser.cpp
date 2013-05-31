@@ -1,4 +1,4 @@
-
+#include "../Client/client.h"
 #include "CommandParser.h"
 #include "utilities.h"
 
@@ -26,17 +26,16 @@ void CommandParser::run()
 
         // Wyjscie z programu
         if (command == "exit" || command == "quit") {
-            //Client.terminateClient();
+            Client::getInstance().terminateClient();
             return;
-
         }
 
         // Rejestracja uzytkownika
         else if (command == "register") {
-            //Client.connectToServer();
+            Client::getInstance().connectToServer();
             std::cout << "Wprowadz login: ";
             getLine(login);
-            while(true/*!Client.loginAvailable(login)*/) {
+            while(! Client::getInstance().loginAvailable(login)) {
                 std::cout << "Login zajety! Wprowadz nowy login: ";
                 getLine(login);
                 break;
@@ -49,29 +48,29 @@ void CommandParser::run()
                 if ( password != password2 ) {
                     std::cout << "Hasla sie nie zgadzaja!\n";
                 } else {
-                    //Client.registerUser(login,password);
+                    Client::getInstance().registerUser(login,password);
                     std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
                     return;
                 }
             }
         }
         else if (command == "status") {
-            //Client.showStatus();
+            Client::getInstance().showStatus();
         }
         else if (command == "list") {
-            //Client.listMonitoredFiles();
+             Client::getInstance().showMonitoredFiles();
         }
         else if (command == "manage") {
-            //Client.showManageUsage();
+             Client::getInstance().showManageUsage();
         }
         else if (command == "manage.list") {
-            //Client.showFolderUsers();
+             Client::getInstance().showFolderUsers();
         }
         else if (command == "manage.add") {
-            //Client.addFolderUser();
+             Client::getInstance().addFolderUser(command);
         }
         else if (command == "manage.remove") {
-            //Client.removeFolderUser();
+             Client::getInstance().removeFolderUser(command);
         }
         else {
             std::cout << "I co teraz?\n";

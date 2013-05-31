@@ -17,23 +17,23 @@ Client& Client::getInstance()
     return instance;
 }
 
-void connectToServer()
+void Client::connectToServer()
 {
 
 }
 
-void terminateClient()
+void Client::terminateClient()
 {
     std::cout << "Sending server signal to terminate connection with client\n";
 }
 
-bool loginAvailable(QString login)
+bool Client::loginAvailable(QString login)
 {
     std::cout << "Login available\n";
     return true;
 }
 
-void registerUser(QString login, QString password)
+void Client::registerUser(QString login, QString password)
 {
     std::cout << "User regisitered";
 }

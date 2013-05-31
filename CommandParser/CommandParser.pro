@@ -17,8 +17,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     CommandParser.cpp \
-    utilities.cpp
+    utilities.cpp \
+    ../Client/client.cpp
 
 HEADERS += \
     CommandParser.h \
-    utilities.h
+    utilities.h \
+    ../Client/client.h
