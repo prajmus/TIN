@@ -7,12 +7,12 @@
 #include <QString>
 #include <QStringList>
 
-CommandParser::CommandParser()
+CommandParser::CommandParser(QObject *parent) : QObject(parent)
 {
 
 }
 
-void CommandParser::run()
+void CommandParser::process()
 {
     QString command;
     QStringList list;
@@ -31,7 +31,7 @@ void CommandParser::run()
         // Wyjscie z programu
         if (command == "exit" || command == "quit") {
             Client::getInstance().terminateClient();
-            return;
+            emit finished();
         }
 
         // Rejestracja uzytkownika

@@ -1,18 +1,22 @@
 #ifndef COMMANDPARSER_H
 #define COMMANDPARSER_H
 
-#include <QString>
+#include <QObject>
 
-class CommandParser
+class CommandParser : public QObject
 {
-    QString command;
-
+    Q_OBJECT
 protected:
-    CommandParser();
+    CommandParser(QObject *parent = 0);
 
+public slots:
+    void process();
 public:
-    void run();
     static CommandParser& getInstance();
+
+signals:
+    void finished();
+
 
 };
 

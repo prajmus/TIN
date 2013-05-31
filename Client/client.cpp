@@ -1,20 +1,42 @@
 #include "client.h"
 #include "utilities.h"
-#include <QTextStream>
+#include "CommandParser.h"
 #include <iostream>
+#include <QThread>
 
-Client::Client()
-{
+
+Client::Client(){
+
 }
 
 void Client::run()
 {
-
+    //CommandParser::getInstance().process();
+    QThread* thread = new QThread();
+    CommandParser::getInstance().moveToThread(thread);
+    CommandParser::getInstance().connect(thread, SIGNAL(started()),SLOT(process()));
+    thread->connect(&CommandParser::getInstance(),SIGNAL(finished()),SLOT(quit()));
+    CommandParser::getInstance().connect(&CommandParser::getInstance(),SIGNAL(finished()),SLOT(deleteLater()));
+     thread->connect(thread, SIGNAL(finished()),SLOT(deleteLater()));
+    //CommandParser::getInstance().connect(thread, SIGNAL(quit()),SLOT(finished()));
+    /*
+    QObject::connect(thread, SIGNAL(started()), parser, SLOT(process()));
+    QObject::connect(parser, SIGNAL(finished()), thread, SLOT(quit()));
+    QObject::connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
+    QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+    */
+    thread->start();
 }
 
 void Client::quit()
 {
-    emit finished();
+    QCoreApplication::quit();
+    //emit finished();
+}
+
+void Client::aboutToQuitApp()
+{
+
 }
 
 Client& Client::getInstance()
@@ -40,7 +62,7 @@ bool Client::loginAvailable(QString login)
     return true;
 }
 
-void createAccount() {
+void Client::createAccount() {
     QString login;
     QString password;
     QString password2;
@@ -94,19 +116,34 @@ void Client::showFolderUsers()
     std::cout << "List of users with access to this folder:\n";
 }
 
-void Client::addFolderUser(QString login)
+void Client::addFolderUser(QStringList loginList)
 {
     //TcpClient.addFolderUser(QString login);
     std::cout << "User added\n";// << login << " added to shared folder!\nTo list users, type manage.list\n";
 }
 
-void Client::removeFolderUser(QString login)
+void Client::removeFolderUser(QStringList loginList)
 {
     //TcpClient.removeFolderUser(QString login);
     std::cout << "User removed\n";// << login << " removed from shared folder!\nTo list users, type manage.list\n";
 }
 
+
+
+
+
+
+
+
+
+/*Client::Client(QObject *parent) :
+    QObject(parent)
+{
+    app = QCoreApplication::instance();
+}*/
+
+/*
 void Client::aboutToQuitApp()
 {
 
-}
+}*/

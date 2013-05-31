@@ -3,13 +3,13 @@
 #include <QTextStream>
 #include <QString>
 #include <iostream>
-#include "CommandParser.h"
+#include "client.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    CommandParser::getInstance().run();
+    Client::getInstance().run();
 
     return a.exec();
 }

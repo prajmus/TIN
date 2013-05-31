@@ -1,12 +1,15 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QObject>
 #include <QCoreApplication>
 #include <QString>
+#include <QStringList>
 
 
 class Client
 {
+
 private:
     QCoreApplication *app;
 
@@ -15,7 +18,7 @@ protected:
 
 public:
     void run();
-    void quit();
+
     static Client& getInstance();
 
     void connectToServer();
@@ -35,6 +38,7 @@ signals:
     void finished();
 public slots:
     void aboutToQuitApp();
+    void quit();
 };
 
 #endif // CLIENT_H
