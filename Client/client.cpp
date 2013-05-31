@@ -1,6 +1,7 @@
 #include "client.h"
 #include "utilities.h"
 #include "CommandParser.h"
+#include "fileserver.h"
 #include <iostream>
 #include <QThread>
 
@@ -109,6 +110,7 @@ void Client::showStatus()
 void Client::showMonitoredFiles()
 {
     std::cout << "List of monitored files:\n";
+    std::cout << FileServer::getInstance().getFileInfo(".").filePath();
 }
 
 void Client::showManageUsage()

@@ -19,10 +19,12 @@ SOURCES += main.cpp \
     client.cpp \
     utilities.cpp \
     CommandParser.cpp \
-    filesystemwatcher.cpp
+    filesystemwatcher.cpp \
+    fileserver.cpp
 
 HEADERS += \
     client.h \
     utilities.h \
     CommandParser.h \
-    filesystemwatcher.h
+    filesystemwatcher.h \
+    fileserver.h
