@@ -1,15 +1,21 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QCoreApplication>
 #include <QString>
+
 
 class Client
 {
+private:
+    QCoreApplication *app;
 
 protected:
     Client();
+
 public:
     void run();
+    void quit();
     static Client& getInstance();
 
     void connectToServer();
@@ -22,8 +28,13 @@ public:
     void showMonitoredFiles();
     void showManageUsage();
     void showFolderUsers();
-    void addFolderUser(QString login);
-    void removeFolderUser(QString login);
+    void addFolderUser(QStringList loginList);
+    void removeFolderUser(QStringList loginList);
+
+signals:
+    void finished();
+public slots:
+    void aboutToQuitApp();
 };
 
 #endif // CLIENT_H

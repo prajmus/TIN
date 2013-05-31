@@ -1,4 +1,5 @@
 #include "client.h"
+#include "utilities.h"
 #include <QTextStream>
 #include <iostream>
 
@@ -9,6 +10,11 @@ Client::Client()
 void Client::run()
 {
 
+}
+
+void Client::quit()
+{
+    emit finished();
 }
 
 Client& Client::getInstance()
@@ -25,6 +31,7 @@ void Client::connectToServer()
 void Client::terminateClient()
 {
     std::cout << "Sending server signal to terminate connection with client.\n";
+    quit();
 }
 
 bool Client::loginAvailable(QString login)
@@ -77,12 +84,10 @@ void Client::showMonitoredFiles()
     std::cout << "List of monitored files:\n";
 }
 
-
 void Client::showManageUsage()
 {
     std::cout << "Manage help:\n";
 }
-
 
 void Client::showFolderUsers()
 {
@@ -99,4 +104,9 @@ void Client::removeFolderUser(QString login)
 {
     //TcpClient.removeFolderUser(QString login);
     std::cout << "User removed\n";// << login << " removed from shared folder!\nTo list users, type manage.list\n";
+}
+
+void Client::aboutToQuitApp()
+{
+
 }
