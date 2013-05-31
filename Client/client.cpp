@@ -24,7 +24,7 @@ void Client::connectToServer()
 
 void Client::terminateClient()
 {
-    std::cout << "Sending server signal to terminate connection with client\n";
+    std::cout << "Sending server signal to terminate connection with client.\n";
 }
 
 bool Client::loginAvailable(QString login)
