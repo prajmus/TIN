@@ -18,9 +18,11 @@ TEMPLATE = app
 SOURCES += main.cpp \
     client.cpp \
     utilities.cpp \
-    CommandParser.cpp
+    CommandParser.cpp \
+    filesystemwatcher.cpp
 
 HEADERS += \
     client.h \
     utilities.h \
-    CommandParser.h
+    CommandParser.h \
+    filesystemwatcher.h

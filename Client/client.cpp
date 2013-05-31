@@ -17,15 +17,20 @@ void Client::run()
     CommandParser::getInstance().connect(thread, SIGNAL(started()),SLOT(process()));
     thread->connect(&CommandParser::getInstance(),SIGNAL(finished()),SLOT(quit()));
     CommandParser::getInstance().connect(&CommandParser::getInstance(),SIGNAL(finished()),SLOT(deleteLater()));
-     thread->connect(thread, SIGNAL(finished()),SLOT(deleteLater()));
-    //CommandParser::getInstance().connect(thread, SIGNAL(quit()),SLOT(finished()));
+    thread->connect(thread, SIGNAL(finished()),SLOT(deleteLater()));
+    thread->start();
+
+
+     //CommandParser::getInstance().connect(thread, SIGNAL(quit()),SLOT(finished()));
     /*
     QObject::connect(thread, SIGNAL(started()), parser, SLOT(process()));
     QObject::connect(parser, SIGNAL(finished()), thread, SLOT(quit()));
     QObject::connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
     QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     */
-    thread->start();
+
+
+
 }
 
 void Client::quit()
