@@ -1,10 +1,9 @@
 
 #include "CommandParser.h"
+#include "utilities.h"
 
 #include <sstream>
 #include <iostream>
-#include <QTextStream>
-
 
 CommandParser::CommandParser()
 {
@@ -13,32 +12,18 @@ CommandParser::CommandParser()
 
 void CommandParser::run()
 {
-    std::cout << "run\n";
-    QTextStream in(stdin);
-    command = "costam";
-    QTextStream out(stdout);
-    //while(std::getline(std::cin,command.toStdString())) {
+    QString login;
+    QString password;
+    QString password2;
+
     while(true) {
-        //command = in.readLine();
-       out << command << endl;
-
-
-
-        continue;/*
-        //std::cout << "obrot while()\n";
-        //std::stringstream input(command.toStdString());
-        QString login;
-        QString password;
-        QString password2;
-
-        //std::cout << input.str() << std::endl;
-
-
+        getLine(command);
         // Pusta komenda
         if (command.size() == 0) {
             std::cout << "pusta komenda\n";
             continue;
         }
+
         // Wyjscie z programu
         if (command == "exit" || command == "quit") {
             //Client.terminateClient();
@@ -50,16 +35,17 @@ void CommandParser::run()
         else if (command == "register") {
             //Client.connectToServer();
             std::cout << "Wprowadz login: ";
-            std::getline(std::cin,login.toStdString());
-            while(!Client.loginAvailable(login)) {
+            getLine(login);
+            while(true/*!Client.loginAvailable(login)*/) {
                 std::cout << "Login zajety! Wprowadz nowy login: ";
-                std::getline(std::cin,login.toStdString());
+                getLine(login);
+                break;
             }
             while(true) {
                 std::cout << "Wprowadz haslo: ";
-                std::getline(std::cin,password.toStdString());
+                getLine(password);
                 std::cout << "Wprowadz ponownie haslo: ";
-                std::getline(std::cin,password2.toStdString());
+                getLine(password2);
                 if ( password != password2 ) {
                     std::cout << "Hasla sie nie zgadzaja!\n";
                 } else {
@@ -89,7 +75,7 @@ void CommandParser::run()
         }
         else {
             std::cout << "I co teraz?\n";
-        }*/
+        }
     }
 }
 

@@ -2,11 +2,9 @@
 #define COMMANDPARSER_H
 
 #include <QString>
-#include <string>
 
 class CommandParser
 {
-    std::string command1;
     QString command;
 
 protected:
