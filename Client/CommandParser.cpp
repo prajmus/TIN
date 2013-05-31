@@ -12,10 +12,6 @@ CommandParser::CommandParser()
 
 void CommandParser::run()
 {
-    QString login;
-    QString password;
-    QString password2;
-
     while(true) {
         getLine(command);
         // Pusta komenda
@@ -32,27 +28,7 @@ void CommandParser::run()
 
         // Rejestracja uzytkownika
         else if (command == "register") {
-            Client::getInstance().connectToServer();
-            std::cout << "Wprowadz login: ";
-            getLine(login);
-            while(! Client::getInstance().loginAvailable(login)) {
-                std::cout << "Login zajety! Wprowadz nowy login: ";
-                getLine(login);
-                break;
-            }
-            while(true) {
-                std::cout << "Wprowadz haslo: ";
-                getLine(password);
-                std::cout << "Wprowadz ponownie haslo: ";
-                getLine(password2);
-                if ( password != password2 ) {
-                    std::cout << "Hasla sie nie zgadzaja!\n";
-                } else {
-                    Client::getInstance().registerUser(login,password);
-                    std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
-                    return;
-                }
-            }
+            Client::getInstance().createAccount();
         }
         else if (command == "status") {
             Client::getInstance().showStatus();

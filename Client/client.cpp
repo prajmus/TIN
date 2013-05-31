@@ -33,6 +33,35 @@ bool Client::loginAvailable(QString login)
     return true;
 }
 
+void createAccount() {
+    QString login;
+    QString password;
+    QString password2;
+
+    Client::getInstance().connectToServer();
+
+    std::cout << "Wprowadz login: ";
+    getLine(login);
+    while(! Client::getInstance().loginAvailable(login)) {
+        std::cout << "Login zajety! Wprowadz nowy login: ";
+        getLine(login);
+        break;
+    }
+    while(true) {
+        std::cout << "Wprowadz haslo: ";
+        getLine(password);
+        std::cout << "Wprowadz ponownie haslo: ";
+        getLine(password2);
+        if ( password != password2 ) {
+            std::cout << "Hasla sie nie zgadzaja!\n";
+        } else {
+            Client::getInstance().registerUser(login,password);
+            std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
+            return;
+        }
+    }
+}
+
 void Client::registerUser(QString login, QString password)
 {
     std::cout << "User regisitered\n";

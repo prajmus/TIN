@@ -15,6 +15,7 @@ public:
     void connectToServer();
     void terminateClient();
     bool loginAvailable(QString login);
+    void createAccount();
     void registerUser(QString login, QString password);
 
     void showStatus();
