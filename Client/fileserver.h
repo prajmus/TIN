@@ -9,18 +9,25 @@
 
 class FileServer
 {
-    std::map< QString, QSharedPointer<FileSystemWatcher> > watchers;
     std::map< QString, QSharedPointer<QFileInfo> > files;
+    std::map< QString, QSharedPointer<FileSystemWatcher> > watchers;
+
     QMutex mutex;
+
     void addWatcher(QString path);
     void removeWatcher(QString path);
+
     QFileInfo &prvGetFileInfo(QString path);
+
 protected:
-    FileServer(QString path = ".");
+
 public:
+    FileServer(QString path = ".");
     static FileServer &getInstance();
-    void addFileToList(QString path, int id);
+
+    void addFileToList(QString path);
     bool removeFileFromList(QString path);
+
     QFileInfo &getFileInfo(QString path);
 };
 
