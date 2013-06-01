@@ -21,24 +21,33 @@ const quint16 MAX_PORT = 6100;
 class FileTransferServer : public QObject
 {
   Q_OBJECT
+  private:
+    enum State {
+      IDLE,
+      LISTENING,
+      CONNECTED
+    };
+
   public:
-    FileTransferServer(QFile *file, QObject *parent = 0);
+    FileTransferServer(QFile *file, bool isSender, QObject *parent = 0);
     ~FileTransferServer();
-    void stop();
-  public slots:
+
     void execute();
+    void stop();
   private slots:
-    void timerAction();
     void addNewClient();
     void startListening();
+    void disconnectSlot();
+    void threadFinished();
   protected:
-    QTcpServer *server;
-    ServerClient *socket;
+    QTcpServer *m_server;
+    ServerClient *m_socket;
     QFile *m_file;
-    ServerClient* clients;
-    QTimer *timer;
-    QThread serverThread;
-    QThread *parentThread;
+    ServerClient* m_clients;
+    QThread m_serverThread;
+    QThread *m_parentThread;
+    State m_state;
+    bool m_sender;
 };
 
 #endif // FILETRANSFERSERVER_H

@@ -8,12 +8,9 @@
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
-  QFile *file = new QFile("obraz.png");
-  FileTransferServer *server = new FileTransferServer(file);
+  QFile *file = new QFile("wallpaper.jpg");
+  FileTransferServer *server = new FileTransferServer(file, true);
   server->execute();
-
-  delete file;
-//  serverThread.start();
 
   return a.exec();
 }

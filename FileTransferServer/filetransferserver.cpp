@@ -5,33 +5,38 @@
 #include <QFile>
 
 
-FileTransferServer::FileTransferServer(QFile *file, QObject *parent) : m_file(file)
+FileTransferServer::FileTransferServer(QFile *file, bool isSender, QObject *parent) : m_file(file),
+  m_state(IDLE), m_sender(isSender)
 {
-  parentThread = QThread::currentThread();
+  m_parentThread = QThread::currentThread();
 
-  connect(&serverThread, SIGNAL(started()), this, SLOT(startListening()));
+  connect(&m_serverThread, SIGNAL(started()), this, SLOT(startListening()));
 }
 
-void FileTransferServer::stop()
+FileTransferServer::~FileTransferServer()
 {
-  serverThread.quit();
+  if (m_state != IDLE) {
+    qDebug() << "Still runnin'";
+    disconnectSlot();
+  }
+  delete m_server;
 }
 
 void FileTransferServer::execute()
 {
-  moveToThread(&serverThread);
-  serverThread.moveToThread(&serverThread);
-
-  serverThread.start();
+  moveToThread(&m_serverThread);
+  m_serverThread.moveToThread(&m_serverThread);
+  m_serverThread.start();
 }
 
 void FileTransferServer::startListening()
 {
-  server = new QTcpServer();
-  connect(server, SIGNAL(newConnection()), this, SLOT(addNewClient()));
+  m_server = new QTcpServer();
+  connect(m_server, SIGNAL(newConnection()), this, SLOT(addNewClient()));
   for (quint16 i = MIN_PORT; i<MAX_PORT; ++i) {
-    if (server->listen(QHostAddress::Any, i)) {
+    if (m_server->listen(QHostAddress::Any, i)) {
       qDebug() << i;
+      m_state = LISTENING;
       return;
     }
     else
@@ -40,23 +45,35 @@ void FileTransferServer::startListening()
   exit(1);
 }
 
-
-void FileTransferServer::timerAction()
+void FileTransferServer::disconnectSlot()
 {
+  moveToThread(m_parentThread);
+  m_serverThread.moveToThread(m_parentThread);
+  m_server->close();
+  delete m_socket;
+  m_serverThread.quit();
+}
+
+void FileTransferServer::threadFinished()
+{
+  m_state = IDLE;
+  delete m_file;
+  this->deleteLater();
 }
 
 void FileTransferServer::addNewClient()
 {
   QTcpSocket *client;
-  if(server->hasPendingConnections()) {
-    client = server->nextPendingConnection();
-    socket = new ServerClient(client);
-    socket->testFile();
+  if(m_server->hasPendingConnections()) {
+    client = m_server->nextPendingConnection();
+    m_socket = new ServerClient(client, m_file, m_sender);
+    m_state = CONNECTED;
+    connect(&m_serverThread, SIGNAL(finished()), this, SLOT(threadFinished()));
+    m_socket->sendInit();
+    if (m_sender == true)
+      m_socket->sendFile();
+    connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnectSlot()));
   }
 }
 
 
-FileTransferServer::~FileTransferServer()
-{
-
-}
