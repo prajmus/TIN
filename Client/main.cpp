@@ -10,9 +10,10 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-//    Client::getInstance().run();
+    Client::getInstance().run();
 
-    FileServer::getInstance().construct("/home/qiubix/TIN/Client/");
+//    FileServer::getInstance().construct("/home/qiubix/TIN/Client/");
+//    FileServer::getInstance().addFileToList("/home/qiubix/TIN/Client/.");
 
     return a.exec();
 }

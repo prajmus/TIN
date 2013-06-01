@@ -29,8 +29,8 @@ void Client::run()
     thread->start();
 
     // Opening config file
-//    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
-    QStringList* config = readConfigFile();
+    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
+//    QStringList* config = readConfigFile();
     qDebug() << "Wypisanie listy:";
     for(int i=0; i<config->size(); i++){
         qDebug() << config[i];
@@ -48,7 +48,7 @@ QStringList* Client::readConfigFile(QString configPath)
 {
     QFile file(configPath);
     QStringList* list = new QStringList();
-    QString line;
+    //QString line;
 
     if(!file.exists()) {
         qDebug() << "File doesn't exist!";
@@ -66,8 +66,8 @@ QStringList* Client::readConfigFile(QString configPath)
         QTextStream qin(&file);
 
         while(!file.atEnd()) {
-            line = qin.readLine();
-            //qDebug() << line;
+            QString line = qin.readLine();
+//            qDebug() << line;
             list->push_back(line);
         }
 
@@ -80,25 +80,25 @@ QStringList* Client::readConfigFile(QString configPath)
 // Compares local copies of files with local list of files
 bool Client::compareLocalCopies(QString path)
 {
-    QDir dir = new Dir(".");
+    QDir* dir = new QDir(".");
     QStringList currentFiles = dir->entryList();
     QFile localList(path);
     QStringList* listedFiles = new QStringList();
     QString line;
     int i;
-    if(!file.exists() || !file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if(!localList.exists() || !localList.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << "Couldn't open file! Maybe it doesn't exist.";
         return false;
     }
     QTextStream qin(&localList);
 
-    while(!file.atEnd()) {
+    while(!localList.atEnd()) {
         line = qin.readLine();
         //qDebug() << line;
-        list->push_back(line);
+        listedFiles->push_back(line);
     }
 
-    file.close();
+    localList.close();
 
     //TODO: porownanie listy plikow lokalnych z tym, co sie znajduje w katalogu
     //      i podjecie odpowiednich akcji
