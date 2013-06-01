@@ -7,30 +7,26 @@
 
 FileServer::FileServer()
 {
-    qDebug() << "FileServer constructor";
+//    qDebug() << "FileServer constructor";
 }
 
 void FileServer::construct(QString path)
 {
     qDebug() << "FileServer::construct(path)";
-//    FileServer::getInstance().path = path;
+
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
-//    QFileInfoList fileInfoList = dir->entryInfoList();
-//    qDebug() << "Przed forem" << endl;
     for(int i = 0; i<fileList.size();i++) {
         qDebug() << path + fileList[i];
-//        QFileInfo fileInfo =  fileInfoList[i];
-//        qDebug() << fileInfo.absolutePath() << endl;
         addFileToList(path+fileList[i]);
     }
+
     qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
 
 
 void FileServer::addWatcher(QString path)
 {
-//    QMutexLocker locker(&mutex);
     watchers.insert(std::make_pair(path, new FileSystemWatcher(path)));
 }
 
@@ -53,17 +49,18 @@ FileServer& FileServer::getInstance()
 
 void FileServer::addFileToList(QString path)
 {
-//    QMutexLocker locker(&mutex);
     qDebug() << "FileServer::addFileToList";
 //    std::map< QString, QSharedPointer< QFileInfo > >::iterator it = files.end();
 //    qDebug() << "Utworzono iterator";
+    std::pair< QString, QSharedPointer <QFileInfo> > pair = std::make_pair(path, new QFileInfo(path));
+    qDebug() << "Utworzono pare";
     files.insert(std::make_pair(path, new QFileInfo(path)));
+    qDebug() << "Przeszedlem insert!!!!";
     addWatcher(path);
 }
 
 bool FileServer::removeFileFromList(QString path)
 {
-    QMutexLocker locker(&mutex);
     if (files.find(path) == files.end()) {
         return false;
     }
@@ -74,7 +71,6 @@ bool FileServer::removeFileFromList(QString path)
 
 QFileInfo &FileServer::getFileInfo(QString path)
 {
-//    QMutexLocker locker(&mutex);
     return prvGetFileInfo(path);
 }
 

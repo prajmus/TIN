@@ -12,7 +12,7 @@ class Client
 
 private:
     QCoreApplication *app;
-    QString path;
+    QString path;           // monitored by client
 
 protected:
     Client();
@@ -21,13 +21,13 @@ public:
     void run();
     static Client& getInstance();
 
-    QStringList* readConfigFile();
+    QStringList* readConfigFile(QString configPath = "config");
     bool loginAvailable(QString login);
     void createAccount();
     void registerUser(QString login, QString password);
     void connectToServer();
     void terminateClient();
-    void compareLocalCopies();
+    bool compareLocalCopies(QString path = "localList");
     void synchronizeFiles();
 
     void showStatus();

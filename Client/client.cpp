@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QTextStream>
 #include <QFile>
+#include <QDir>
 #include <QDebug>
 
 
@@ -28,6 +29,7 @@ void Client::run()
     thread->start();
 
     // Opening config file
+//    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
     QStringList* config = readConfigFile();
     qDebug() << "Wypisanie listy:";
     for(int i=0; i<config->size(); i++){
@@ -35,16 +37,16 @@ void Client::run()
     }
 
     // Compare monitored folder with local file list
-//    compareLocalCopies();
+//    compareLocalCopies(QString path);
 
     // Synchronize changes with server
 //    synchronizeFiles();
 }
 
-
-QStringList* Client::readConfigFile()
+// Looks for config file and saves contents to list of configs
+QStringList* Client::readConfigFile(QString configPath)
 {
-    QFile file("/home/qiubix/TIN/Client/config");
+    QFile file(configPath);
     QStringList* list = new QStringList();
     QString line;
 
@@ -75,24 +77,67 @@ QStringList* Client::readConfigFile()
     return list;
 }
 
+// Compares local copies of files with local list of files
+bool Client::compareLocalCopies(QString path)
+{
+    QDir dir = new Dir(".");
+    QStringList currentFiles = dir->entryList();
+    QFile localList(path);
+    QStringList* listedFiles = new QStringList();
+    QString line;
+    int i;
+    if(!file.exists() || !file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "Couldn't open file! Maybe it doesn't exist.";
+        return false;
+    }
+    QTextStream qin(&localList);
 
+    while(!file.atEnd()) {
+        line = qin.readLine();
+        //qDebug() << line;
+        list->push_back(line);
+    }
+
+    file.close();
+
+    //TODO: porownanie listy plikow lokalnych z tym, co sie znajduje w katalogu
+    //      i podjecie odpowiednich akcji
+    for(int i=0; i<listedFiles->size(); i++) {
+        // TODO
+    }
+    return true;
+}
+
+// Connects client to server
 void Client::connectToServer()
 {
     std::cout << "Connected to server\n";
 }
 
+
+// Gets remote list of user's files and synchronizes it with local copies.
+// Starts a new thread to exchange files in it
+void Client::synchronizeFiles()
+{
+
+}
+
+// Terminate client's connection with server and inform server, that client may
+// be deleted from active clients' list
 void Client::terminateClient()
 {
     std::cout << "Sending server signal to terminate connection with client.\n";
     quit();
 }
 
+// Checking whether login is already in use
 bool Client::loginAvailable(QString login)
 {
     std::cout << "Login available\n";
     return true;
 }
 
+// Creating new account
 void Client::createAccount() {
     QString login;
     QString password;
@@ -122,16 +167,20 @@ void Client::createAccount() {
     }
 }
 
+// Registering new user on server - sending a message (?) to register him
 void Client::registerUser(QString login, QString password)
 {
     std::cout << "User regisitered\n";
 }
 
+// Shows client's status, currently downloaded/uploaded files, current files in folder
+// (and users sharing this folder)
 void Client::showStatus()
 {
     std::cout << "User's and catalogue's status.\n";
 }
 
+// Displays list of files in monitored folder
 void Client::showMonitoredFiles()
 {
     QTextStream qout(stdout);

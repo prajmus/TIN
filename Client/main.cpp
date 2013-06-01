@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
 
 //    Client::getInstance().run();
 
-//    FileServer* serwerek = new FileServer();
     FileServer::getInstance().construct("/home/qiubix/TIN/Client/");
 
     return a.exec();
