@@ -23,7 +23,7 @@ void Client::connectToServer()
 {
   qDebug() << "connecting";
   if(socket.state() != QTcpSocket::ConnectedState)
-    socket.connectToHost(QHostAddress::LocalHost, 6018);
+    socket.connectToHost(QHostAddress::LocalHost, 6000);
 
   blockSize = 0;
 }

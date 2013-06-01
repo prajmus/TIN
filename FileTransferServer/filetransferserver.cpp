@@ -5,38 +5,41 @@
 #include <QFile>
 
 
-FileTransferServer::FileTransferServer(QObject *parent)
+FileTransferServer::FileTransferServer(QFile *file, QObject *parent) : m_file(file)
 {
-//  timer = new QTimer(this);
-//  connect(timer, SIGNAL(timeout()), this, SLOT(timerAction()));
-//  timer->start(10000);
-  connect(&server, SIGNAL(newConnection()), this, SLOT(addNewClient()));
+  parentThread = QThread::currentThread();
 
-//
-  execute();
-}
-
-FileTransferServer& FileTransferServer::getInstance()
-{
-  static FileTransferServer instance;
-  return instance;
+  connect(&serverThread, SIGNAL(started()), this, SLOT(startListening()));
 }
 
 void FileTransferServer::stop()
 {
   serverThread.quit();
-  qDeleteAll(clients);
-  clients.clear();
 }
 
 void FileTransferServer::execute()
 {
-  if(!server.listen(QHostAddress::Any, PORT_NUMBER))
-  {
-    qDebug() << "Cannot bind port";
-    return;
-  }
+  moveToThread(&serverThread);
+  serverThread.moveToThread(&serverThread);
+
+  serverThread.start();
 }
+
+void FileTransferServer::startListening()
+{
+  server = new QTcpServer();
+  connect(server, SIGNAL(newConnection()), this, SLOT(addNewClient()));
+  for (quint16 i = MIN_PORT; i<MAX_PORT; ++i) {
+    if (server->listen(QHostAddress::Any, i)) {
+      qDebug() << i;
+      return;
+    }
+    else
+      qDebug() << "Cannot bind port " << i;
+  }
+  exit(1);
+}
+
 
 void FileTransferServer::timerAction()
 {
@@ -45,10 +48,15 @@ void FileTransferServer::timerAction()
 void FileTransferServer::addNewClient()
 {
   QTcpSocket *client;
-  while(server.hasPendingConnections()) {
-    client = server.nextPendingConnection();
-    ServerClient *s = new ServerClient(client);
-    s->testFile();
-    clients.append(s);
+  if(server->hasPendingConnections()) {
+    client = server->nextPendingConnection();
+    socket = new ServerClient(client);
+    socket->testFile();
   }
+}
+
+
+FileTransferServer::~FileTransferServer()
+{
+
 }

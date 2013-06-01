@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QThread>
+#include <QFile>
 #include <QHostAddress>
 
 #include "filetransferserver.h"
@@ -7,14 +8,11 @@
 int main(int argc, char *argv[])
 {
   QCoreApplication a(argc, argv);
+  QFile *file = new QFile("obraz.png");
+  FileTransferServer *server = new FileTransferServer(file);
+  server->execute();
 
-//  QThread serverThread;
-  FileTransferServer::getInstance();//.moveToThread(&serverThread);
-//  serverThread.start();
-//  serverThread.connect(&a, SIGNAL(aboutToQuit()), SLOT(quit()));
-//  FileTransferServer::getInstance().connect(&serverThread, SIGNAL(started()), SLOT(execute()));
-////  FileTransferServer::getInstance().execute();
-
+  delete file;
 //  serverThread.start();
 
   return a.exec();
