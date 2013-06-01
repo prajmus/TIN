@@ -12,23 +12,28 @@ class Client
 
 private:
     QCoreApplication *app;
+    QString path;
 
 protected:
     Client();
 
 public:
     void run();
-
     static Client& getInstance();
 
-    void connectToServer();
-    void terminateClient();
+    QStringList* readConfigFile();
     bool loginAvailable(QString login);
     void createAccount();
     void registerUser(QString login, QString password);
+    void connectToServer();
+    void terminateClient();
+    void compareLocalCopies();
+    void synchronizeFiles();
 
     void showStatus();
     void showMonitoredFiles();
+
+
     void showManageUsage();
     void showFolderUsers();
     void addFolderUser(QStringList loginList);

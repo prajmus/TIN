@@ -5,19 +5,28 @@
 #include <QMutexLocker>
 #include <utility>
 
-FileServer::FileServer(QString path)
+FileServer::FileServer()
 {
+    qDebug() << "FileServer constructor";
+}
+
+void FileServer::construct(QString path)
+{
+    qDebug() << "FileServer::construct(path)";
+//    FileServer::getInstance().path = path;
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
-    QFileInfoList fileInfoList = dir->entryInfoList();
+//    QFileInfoList fileInfoList = dir->entryInfoList();
+//    qDebug() << "Przed forem" << endl;
     for(int i = 0; i<fileList.size();i++) {
-        QString filePath = fileList[i];
-        qDebug() << path + filePath;
-        QFileInfo fileInfo =  fileInfoList[i];
-        qDebug() << fileInfo.absolutePath() << endl;
-        addFileToList(path+filePath);
+        qDebug() << path + fileList[i];
+//        QFileInfo fileInfo =  fileInfoList[i];
+//        qDebug() << fileInfo.absolutePath() << endl;
+        addFileToList(path+fileList[i]);
     }
+    qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
+
 
 void FileServer::addWatcher(QString path)
 {
@@ -44,7 +53,10 @@ FileServer& FileServer::getInstance()
 
 void FileServer::addFileToList(QString path)
 {
-    QMutexLocker locker(&mutex);
+//    QMutexLocker locker(&mutex);
+    qDebug() << "FileServer::addFileToList";
+//    std::map< QString, QSharedPointer< QFileInfo > >::iterator it = files.end();
+//    qDebug() << "Utworzono iterator";
     files.insert(std::make_pair(path, new QFileInfo(path)));
     addWatcher(path);
 }
@@ -66,4 +78,12 @@ QFileInfo &FileServer::getFileInfo(QString path)
     return prvGetFileInfo(path);
 }
 
-
+QStringList FileServer::getFileList()
+{
+    qDebug() << "FileServer::getFileList()"<<endl;
+    QStringList list;
+    std::map< QString, QSharedPointer< QFileInfo > >::iterator it;
+    for(it=files.begin(); it!=files.end(); it++)
+        list.push_back(it->first);
+    return list;
+}

@@ -4,14 +4,20 @@
 #include "fileserver.h"
 #include <iostream>
 #include <QThread>
+#include <QTextStream>
+#include <QFile>
+#include <QDebug>
 
 
 Client::Client(){
 
 }
 
+// Main loop
 void Client::run()
 {
+    // Starting CommandParser in new thread
+
     //CommandParser::getInstance().process();
     QThread* thread = new QThread();
     CommandParser::getInstance().moveToThread(thread);
@@ -21,35 +27,54 @@ void Client::run()
     thread->connect(thread, SIGNAL(finished()),SLOT(deleteLater()));
     thread->start();
 
+    // Opening config file
+    QStringList* config = readConfigFile();
+    qDebug() << "Wypisanie listy:";
+    for(int i=0; i<config->size(); i++){
+        qDebug() << config[i];
+    }
 
-     //CommandParser::getInstance().connect(thread, SIGNAL(quit()),SLOT(finished()));
-    /*
-    QObject::connect(thread, SIGNAL(started()), parser, SLOT(process()));
-    QObject::connect(parser, SIGNAL(finished()), thread, SLOT(quit()));
-    QObject::connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
-    QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    */
+    // Compare monitored folder with local file list
+//    compareLocalCopies();
 
-
-
+    // Synchronize changes with server
+//    synchronizeFiles();
 }
 
-void Client::quit()
+
+QStringList* Client::readConfigFile()
 {
-    QCoreApplication::quit();
-    //emit finished();
+    QFile file("/home/qiubix/TIN/Client/config");
+    QStringList* list = new QStringList();
+    QString line;
+
+    if(!file.exists()) {
+        qDebug() << "File doesn't exist!";
+
+        // TODO: Interakcja z uzytkownikiem - podanie sciezki do monitorowanego katalogu
+
+        //return NULL;
+    }
+    else {
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << "Couldn't open file!";
+            return NULL;
+        }
+
+        QTextStream qin(&file);
+
+        while(!file.atEnd()) {
+            line = qin.readLine();
+            //qDebug() << line;
+            list->push_back(line);
+        }
+
+        file.close();
+    }
+
+    return list;
 }
 
-void Client::aboutToQuitApp()
-{
-
-}
-
-Client& Client::getInstance()
-{
-    static Client instance;
-    return instance;
-}
 
 void Client::connectToServer()
 {
@@ -109,9 +134,48 @@ void Client::showStatus()
 
 void Client::showMonitoredFiles()
 {
-    std::cout << "List of monitored files:\n";
-    //std::cout << FileServer::getInstance().getFileInfo(".").filePath();
+    QTextStream qout(stdout);
+    FileServer::getInstance().construct("/home/qiubix/TIN/Client/");
+    qDebug() << "passed FileServer::getInstance().construct(path)";
+    QStringList fileList = FileServer::getInstance().getFileList();
+    qout << "List of monitored files:"<<endl;
+    for(int i=0; i<fileList.size(); i++) {
+        qout << fileList[i] << endl;
+    }
 }
+
+
+
+void Client::quit()
+{
+    QCoreApplication::quit();
+    //emit finished();
+}
+
+void Client::aboutToQuitApp()
+{
+
+}
+
+Client& Client::getInstance()
+{
+    static Client instance;
+    return instance;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void Client::showManageUsage()
 {
