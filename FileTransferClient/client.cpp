@@ -5,90 +5,173 @@
 #include <QDebug>
 
 
-Client::Client(QObject *parent)
+Client::Client(quint16 port, QFile *file, bool isSender, QObject *parent) : m_port(port), m_file(file),
+  m_sender(isSender), m_state(IDLE)
 {
-  connect(&socket, SIGNAL(connected()), this, SLOT(signalConnected()));
-  connect(&socket, SIGNAL(disconnected()), this, SLOT(connectionClosedByServer()));
-  connect(&socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
-  file = new QFile("obraz.png");
-  file->open(QIODevice::WriteOnly);
+  m_parentThread = QThread::currentThread();
+  connect(&m_clientThread, SIGNAL(started()), this, SLOT(connectToServer()));
+
+//  file = new QFile("obraz.png");
+//  file->open(QIODevice::WriteOnly);
 }
 
-Client& Client::getInstance(){
-  static Client instance;
-  return instance;
+Client::~Client()
+{
+  if(m_state != IDLE) {
+    qDebug() << "Still runnin'";
+
+  }
+  delete m_socket;
+}
+
+void Client::execute()
+{
+  moveToThread(&m_clientThread);
+  m_clientThread.moveToThread(&m_clientThread);
+  m_clientThread.start();
 }
 
 void Client::connectToServer()
 {
+  m_socket = new QTcpSocket();
   qDebug() << "connecting";
-  if(socket.state() != QTcpSocket::ConnectedState)
-    socket.connectToHost(QHostAddress::LocalHost, 6018);
+  connect(m_socket, SIGNAL(connected()), this, SLOT(signalConnected()));
+  connect(m_socket, SIGNAL(disconnected()), this, SLOT(connectionClosedByServer()));
+  connect(m_socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
+  connect(m_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(writeBytes(qint64)));
+  if(m_socket->state() != QTcpSocket::ConnectedState)
+    m_socket->connectToHost(QHostAddress::LocalHost, m_port);
 
-  blockSize = 0;
+
+
 }
 
 void Client::signalConnected()
 {
   qDebug() << "true";
   emit connected(true);
+  m_state = CONNECTED;
+  if(m_sender)
+    sendFile();
 }
 
 void Client::error()
 {
-  socket.close();
+  m_socket->close();
 }
 
 void Client::receiveData()
 {
-  if(m_state != TRANSFER_FINISHED) {
-    if (m_state == CONNECTED) {
+  if(m_state < INITIALIZED) {
+    getInit();
+  }
+    if(!m_file->isOpen())
+      m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+  if(m_state != TRANSFER_FINISHED || m_currentlyReceived != m_fileSize) {
+    if (m_state == INITIALIZED) {
       m_state = TRANSFERING;
 
-      QDataStream in(&socket);
+      QDataStream in(m_socket);
       in >> m_fileSize;
     }
-
-    QByteArray buffer = socket.read(m_fileSize);
+    qDebug() << m_fileSize;
+    QByteArray buffer = m_socket->read(m_fileSize);
     m_currentlyReceived += buffer.size();
 
-    file->write(buffer);
+    m_file->write(buffer);
 
     if (m_currentlyReceived == m_fileSize) {
-      file->close();
-      delete file;
+      m_file->close();
+      delete m_file;
       m_state = TRANSFER_FINISHED;
 
-      socket.disconnectFromHost();
+      m_socket->disconnectFromHost();
 
     } else if (m_currentlyReceived > m_fileSize) {
       qDebug() << "Received too large file";
       m_state = ERROR;
 
-      socket.disconnectFromHost();
+      m_socket->disconnectFromHost();
     }
   }
   else
   {
-    QByteArray buffer2 = socket.readAll();
+    QByteArray buffer2 = m_socket->readAll();
     qDebug() << buffer2;
   }
 }
 
-void Client::sendRequest()
+void Client::getInit()
 {
-  QByteArray block;
-  QDataStream out(&block, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_4_8);
-  out << quint16(0) << 10 << "prajmus" << "haslo";
-  out.device()->seek(0);                          // 'scroll back' to that 0 at the beggining
-  out << quint16(block.size() - sizeof(quint16)); // override it with actual data size
-  socket.write(block);
+  m_socket->read(1);
+  m_state = INITIALIZED;
+  if(m_sender == true)
+    sendFile();
 }
 
+void Client::sendFile()
+{
+  m_file->open(QIODevice::ReadOnly);
+  m_state = TRANSFERING;
+
+  QByteArray fileSize;
+  QDataStream in(&fileSize, QIODevice::WriteOnly);
+  in << m_file->size();
+
+
+  m_buffer = m_file->read(8096);
+  //added if block to file transfer defect fixed
+  if (m_file->atEnd()) {
+    m_state = ALL_READ;
+    m_file->close();
+  }
+  qint64 written = m_socket->write(m_buffer);
+
+
+  m_buffer = m_buffer.right(m_buffer.size() - written);
+
+  //added if block to file transfer defect fixed
+  if ((m_state == ALL_READ) && (m_buffer.size() == 0)) {
+    m_state = ALL_WRITTEN;
+  }
+
+}
+
+void Client::writeBytes(qint64 bytes)
+{
+  if (m_state == ALL_WRITTEN) {
+    if (m_socket->bytesToWrite() != 0) {
+      return;
+    }
+
+    m_state = TRANSFER_FINISHED;
+    disconnect(m_socket, SIGNAL(bytesWritten(qint64)), this,
+               SLOT(writeBytes(qint64)));
+
+    m_socket->disconnectFromHost();
+  } else {
+    if ((!(m_state == ALL_READ)) && (m_buffer.size() < 8096)) {
+      m_buffer.append(m_file->read(8096 - m_buffer.size()));
+
+      if (m_file->atEnd()) {
+        m_state = ALL_READ;
+        m_file->close();
+      }
+    }
+
+    qint64 written = m_socket->write(m_buffer);
+
+    m_buffer = m_buffer.right(m_buffer.size() - written);
+
+    if ((m_state == ALL_READ) && (m_buffer.size() == 0)) {
+      m_state = ALL_WRITTEN;
+    }
+  }
+}
 void Client::connectionClosedByServer()
 {
-  socket.close();
+  m_socket->close();
   emit disconnected();
 }
 
