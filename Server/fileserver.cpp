@@ -2,9 +2,16 @@
 
 #include <QDir>
 #include <QMutexLocker>
+#include <QDebug>
 
 FileServer::FileServer()
 {
+}
+
+FileServer &FileServer::getInstance()
+{
+    static FileServer instance;
+    return instance;
 }
 
 void FileServer::addWatcher(QString path)
@@ -32,18 +39,26 @@ FileInfo &FileServer::getFileInfo(QString path)
 
 void FileServer::addFileToList(QString path, int id)
 {
-    QMutexLocker locker(&mutex);
+    mutex.lock();
     files.insert(std::make_pair(path, new FileInfo(path, id)));
+    qDebug() << "dodaje plik do listy " << path << id;
+    qDebug() << files.find(path)->first; // @Karol: dodaje do listy co widać
+    mutex.unlock();
     addWatcher(path);
 }
 
 bool FileServer::removeFileFromList(QString path)
 {
-    QMutexLocker locker(&mutex);
+    mutex.lock();
     if (files.find(path) == files.end()) {
         return false;
     }
+    qDebug() << "znaleziono plik: " << files.find(path)->first << "na liście plików";
     files.erase(files.find(path));
+    if (files.find(path) == files.end()) {
+        qDebug() << "wyjebalem";
+    }
+    mutex.unlock();
     removeWatcher(path);
     return true;
 }

@@ -16,6 +16,7 @@ public:
     Account(int userid);
     ~Account();
     QString getName();
+    int getId();
     void changePassword(QString password);
     bool verify(QString password);
     void setLoggedIn(bool log);

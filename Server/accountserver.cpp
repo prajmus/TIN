@@ -1,9 +1,9 @@
-#include "accountbase.h"
+#include "accountserver.h"
 #include "account.h"
 #include "database.h"
 #include <iostream>
 
-AccountBase::AccountBase()
+AccountServer::AccountServer()
 {
     std::vector< std::vector<QString> > results;
     QString str;
@@ -17,43 +17,43 @@ AccountBase::AccountBase()
     }
 }
 
-bool AccountBase::prvExists(QString username)
+bool AccountServer::prvExists(QString username)
 {
     return base.find(username) != base.end();
 }
 
-bool AccountBase::exists(QString username)
+bool AccountServer::exists(QString username)
 {
     QMutexLocker locker(&baseMutex);
     return prvExists(username);
 }
 
-bool AccountBase::prvVerify(QString username, QString password)
+bool AccountServer::prvVerify(QString username, QString password)
 {
     if (base.find(username) == base.end())
         return false;
     return base.find(username)->second->verify(password);
 }
 
-bool AccountBase::verify(QString username, QString password)
+bool AccountServer::verify(QString username, QString password)
 {
     QMutexLocker locker(&baseMutex);
     return prvVerify(username, password);
 }
 
-Account &AccountBase::prvGetAccount(QString username)
+Account &AccountServer::prvGetAccount(QString username)
 {
     //assert(base.find(id) != base.end());
     return *(base.find(username)->second);
 }
 
-Account &AccountBase::getAccount(QString username)
+Account &AccountServer::getAccount(QString username)
 {
     QMutexLocker locker(&baseMutex);
     return prvGetAccount(username);
 }
 
-bool AccountBase::registerUser(QString username, QString password)
+bool AccountServer::registerUser(QString username, QString password)
 {
     QMutexLocker locker(&baseMutex);
     int newId = -1;
@@ -64,7 +64,7 @@ bool AccountBase::registerUser(QString username, QString password)
     return true;
 }
 
-bool AccountBase::deleteUser(QString username)
+bool AccountServer::deleteUser(QString username)
 {
     QMutexLocker locker(&baseMutex);
     if (!prvExists(username)) {
@@ -76,8 +76,8 @@ bool AccountBase::deleteUser(QString username)
     return true;
 }
 
-AccountBase &AccountBase::getInstance()
+AccountServer &AccountServer::getInstance()
 {
-    static AccountBase instance;
+    static AccountServer instance;
     return instance;
 }

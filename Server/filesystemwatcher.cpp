@@ -6,6 +6,7 @@ FileSystemWatcher::FileSystemWatcher(QString path, QObject* parent) : QObject(pa
 {
     watcher = new QFileSystemWatcher();
     watcher->addPath(path);
+    qDebug() << "ustawiono watcher na " << path;
     connect(watcher,SIGNAL(fileChanged(QString)),this,SLOT(fileChangedSlot(QString)));
     connect(watcher,SIGNAL(directoryChanged(QString)),this,SLOT(dirChangedSlot(QString)));
 }

@@ -31,6 +31,12 @@ QString Account::getName()
     return accName;
 }
 
+int Account::getId()
+{
+    QMutexLocker locker(&accMutex);
+    return id;
+}
+
 void Account::changePassword(QString password)
 {
     QMutexLocker locker(&accMutex);

@@ -1,14 +1,26 @@
 #include <QCoreApplication>
 #include <cassert>
-#include "database.h"
-#include "accountbase.h"
-#include "md5.h"
 #include <iostream>
-#include "filesystemwatcher.h"
+#include "fileserver.h"
+#include <QStringList>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+
+
+    FileServer::getInstance().addFileToList("/usr/cos/a.txt", 1);
+    FileServer::getInstance().addFileToList("/usr/cos/b.txt", 1);
+    FileServer::getInstance().addFileToList("/usr/cos/c.txt", 1);
+    FileServer::getInstance().removeFileFromList("/usr/cos/a.txt");
+
+    //FileServer::getInstance().viewFileList();
+
+
+
+
+
 
 //    AccountBase::getInstance();
 //    QString str = QString::fromStdString(md5("test"));

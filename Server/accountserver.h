@@ -1,5 +1,5 @@
-#ifndef ACCOUNTBASE_H
-#define ACCOUNTBASE_H
+#ifndef ACCOUNTSERVER_H
+#define ACCOUNTSERVER_H
 
 #include "account.h"
 #include <map>
@@ -8,7 +8,7 @@
 #include <QMutexLocker>
 
 
-class AccountBase
+class AccountServer
 {
     std::map< QString, QSharedPointer<Account> > base;
     QMutex baseMutex;
@@ -16,14 +16,14 @@ class AccountBase
     bool prvVerify(QString username, QString password);
     Account &prvGetAccount(QString username);
 protected:
-    AccountBase();
+    AccountServer();
 public:
     bool exists(QString username);
     bool verify(QString username, QString password);
     Account &getAccount(QString username);
     bool registerUser(QString username, QString password);
     bool deleteUser(QString username);
-    static AccountBase &getInstance();
+    static AccountServer &getInstance();
 };
 
-#endif // ACCOUNTBASE_H
+#endif // ACCOUNTSERVER_H
