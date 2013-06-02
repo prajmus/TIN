@@ -37,7 +37,12 @@ void Client::run()
         qDebug() << config->at(i);
     }
 
-    this->path = config->at(1);
+    this->path = config->at(0);
+    qDebug() << path;
+    if(this->path != "")
+        FileServer::getInstance().construct(this->path);
+    else
+        qDebug() << "Empty path!";
 
     // Compare monitored folder with local file list
 //    compareLocalCopies(QString path);
@@ -188,17 +193,15 @@ void Client::showStatus()
 void Client::showMonitoredFiles()
 {
     QTextStream qout(stdout);
-    if(this->path != "") {
-        FileServer::getInstance().construct(this->path);
-    //    qDebug() << "passed FileServer::getInstance().construct(path)";
-        QStringList fileList = FileServer::getInstance().getFileList();
+    QStringList fileList = FileServer::getInstance().getFileList();
+    if(!fileList.empty()) {
         qout << "List of monitored files:"<<endl;
         for(int i=0; i<fileList.size(); i++) {
-            qout << fileList[i] << endl;
+            qout << fileList.at(i) << endl;
         }
     }
     else {
-        qout << "Path to monitored folder is empty!";
+        qout << "No files are monitored!"<<endl;
     }
 }
 

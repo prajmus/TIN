@@ -12,22 +12,24 @@ FileServer::FileServer()
 
 void FileServer::construct(QString path)
 {
-//    qDebug() << "FileServer::construct(path)";
+    qDebug() << "FileServer::construct(path)";
 
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
     for(int i = 0; i<fileList.size();i++) {
-//        qDebug() << path + fileList[i];
+        qDebug() << path + fileList[i];
         addFileToList(path+fileList[i]);
     }
 
-//    qDebug() << "FileServer::construct(path) has ended"<<endl;
+    qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
 
 void FileServer::addFileToList(QString path)
 {
-//    qDebug() << "FileServer::addFileToList";
-    files.insert(files.end(),new File(path));
+//    qDebug() << "FileServer::addFileToList:"<< path;
+//    files.insert(files.end(),new File(path));
+    files.push_back(new File(path));
+    qDebug() << files.size();
 }
 
 bool FileServer::removeFileFromList(QString path)
@@ -59,11 +61,12 @@ QFileInfo &FileServer::getFileInfo(QString path)
 
 QStringList FileServer::getFileList()
 {
-//    qDebug() << "FileServer::getFileList()"<<endl;
+    qDebug() << "FileServer::getFileList()";
     QStringList list;
-
-//    std::map< QString, QSharedPointer< QFileInfo > >::iterator it;
-//    for(it=files.begin(); it!=files.end(); it++)
-//        list.push_back(it->first);
-//    return list;
+    qDebug() << files.size();
+    for(int i=0; i<files.size();i++) {
+        qDebug() << files.at(i)->getPath();
+        list.push_back(files.at(i)->getPath());
+    }
+    return list;
 }
