@@ -60,7 +60,8 @@ QFileInfo &FileServer::getFileInfo(QString path)
 QStringList FileServer::getFileList()
 {
 //    qDebug() << "FileServer::getFileList()"<<endl;
-//    QStringList list;
+    QStringList list;
+
 //    std::map< QString, QSharedPointer< QFileInfo > >::iterator it;
 //    for(it=files.begin(); it!=files.end(); it++)
 //        list.push_back(it->first);

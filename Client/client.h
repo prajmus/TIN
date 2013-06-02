@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 
+#include "paths.h"
 
 class Client
 {

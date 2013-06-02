@@ -29,7 +29,7 @@ void Client::run()
     thread->start();
 
     // Opening config file
-    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
+    QStringList* config = readConfigFile(_CONFIG_PATH);
 //    QStringList* config = readConfigFile();
 
     qDebug() << "Wypisanie listy:";
@@ -37,7 +37,7 @@ void Client::run()
         qDebug() << config->at(i);
     }
 
-    this->path = config->at(2);
+    this->path = config->at(1);
 
     // Compare monitored folder with local file list
 //    compareLocalCopies(QString path);

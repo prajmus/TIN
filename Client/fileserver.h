@@ -22,7 +22,7 @@ protected:
     FileServer();
 
 public:        
-    void construct(QString path = ".");// "/home/qiubix/TIN/Client/"
+    void construct(QString path = ".");
     static FileServer &getInstance();
 
     void addFileToList(QString path);

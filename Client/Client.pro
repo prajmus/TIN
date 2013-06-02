@@ -31,4 +31,5 @@ HEADERS += \
     filesystemwatcher.h \
     fileserver.h \
     comparator.h \
-    file.h
+    file.h \
+    paths.h
