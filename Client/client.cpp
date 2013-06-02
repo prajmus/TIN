@@ -296,6 +296,20 @@ void Client::createAccount() {
     }
 }
 
+void Client::listCommands() {
+    std::cout << "Available commands:" << std::endl;
+    std::cout << "login" << std::endl;
+    std::cout << "register" << std::endl;
+    std::cout << "exit" << std::endl;
+    std::cout << "quit" << std::endl;
+    std::cout << "list" << std::endl;
+    std::cout << "status" << std::endl;
+    //std::cout << "manage" << std::endl;
+    //std::cout << "manage.list" << std::endl;
+    //std::cout << "manage.add" << std::endl;
+    //std::cout << "manage.remove" << std::endl;
+}
+
 void Client::createConfigFile() {
     QFile newFile("config");
     if (!newFile.open(QIODevice::WriteOnly | QIODevice::Text)) {

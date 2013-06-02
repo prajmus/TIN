@@ -45,6 +45,8 @@ public:
     void logToServer();
     void createConfigFile();
 
+    void listCommands();
+
     void showManageUsage();
     void showFolderUsers();
     void addFolderUser(QStringList loginList);

@@ -45,6 +45,9 @@ void CommandParser::process()
         else if (command == "register") {
             Client::getInstance().createAccount();
         }
+        else if (command == "help") {
+            Client::getInstance().listCommands();
+        }
         else if (command == "status") {
             Client::getInstance().showStatus();
         }
