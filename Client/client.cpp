@@ -11,7 +11,7 @@
 
 
 Client::Client(){
-
+    loggedIn = false;
 }
 
 // Main loop
@@ -103,7 +103,7 @@ bool Client::compareLocalCopies()
     for (int i=0; i<remoteList->size(); i++) {
         for (int j=0; j<localList.size(); j++) {
             if(remoteList->at(i).first == localList.at(j)) {
-                if();
+//                if();
 
             }
         }
@@ -114,7 +114,7 @@ bool Client::compareLocalCopies()
 // Gets list of files with their modification data from server
 QList< std::pair<QString,QDateTime> >* Client::getRemoteList()
 {
-    QList< std::pair<QString,QDateTime> > * list = new QList<std::pair<QString,QDateTime>>();
+    QList< std::pair<QString,QDateTime> > * list = new QList<std::pair<QString,QDateTime> >();
     return list;
 }
 

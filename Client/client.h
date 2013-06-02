@@ -19,7 +19,7 @@ private:
     QString path;           // monitored by client
     QString login;
     QString password;
-    bool loggedIn = false;
+    bool loggedIn;
 
 protected:
     Client();
