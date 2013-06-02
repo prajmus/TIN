@@ -41,7 +41,7 @@ void Client::run()
 
     /*
     this->path = config->at(0);
-    qDebug() << path;
+//    qDebug() << path;
     if(this->path != "")
         FileServer::getInstance().construct(this->path);
     else
@@ -89,36 +89,33 @@ QStringList* Client::readConfigFile(QFile & file)
     return list;
 }
 
-// Compares local copies of files with local list of files
-bool Client::compareLocalCopies(QString path)
+// Compares local copies of files with copies on server
+// returns true when all files are up to date
+// returns false when files need to be updated
+bool Client::compareLocalCopies()
 {
-    QDir* dir = new QDir(".");
-    QStringList currentFiles = dir->entryList();
-    QFile localList(path);
-    QStringList* listedFiles = new QStringList();
-    QString line;
-    int i;
-    if(!localList.exists() || !localList.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Couldn't open file! Maybe it doesn't exist.";
-        return false;
-    }
-    QTextStream qin(&localList);
+    QList< std::pair<QString,QDateTime> >* remoteList = getRemoteList();
+    QStringList localList = FileServer::getInstance().getFileList();
+//    QStringList toUpload;
+//    QStringList toDownload;
+//    QStringList toModify;
 
-    while(!qin.atEnd()) {
-        line = qin.readLine();
-        //qDebug() << line;
-        if(line != "")
-            listedFiles->push_back(line);
-    }
+    for (int i=0; i<remoteList->size(); i++) {
+        for (int j=0; j<localList.size(); j++) {
+            if(remoteList->at(i).first == localList.at(j)) {
+                if();
 
-    localList.close();
-
-    //TODO: porownanie listy plikow lokalnych z tym, co sie znajduje w katalogu
-    //      i podjecie odpowiednich akcji
-    for(int i=0; i<listedFiles->size(); i++) {
-        // TODO
+            }
+        }
     }
     return true;
+}
+
+// Gets list of files with their modification data from server
+QList< std::pair<QString,QDateTime> >* Client::getRemoteList()
+{
+    QList< std::pair<QString,QDateTime> > * list = new QList<std::pair<QString,QDateTime>>();
+    return list;
 }
 
 // Connects client to server
