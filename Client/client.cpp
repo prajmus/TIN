@@ -96,17 +96,41 @@ bool Client::compareLocalCopies()
 {
     QList< std::pair<QString,QDateTime> >* remoteList = getRemoteList();
     QStringList localList = FileServer::getInstance().getFileList();
-//    QStringList toUpload;
-//    QStringList toDownload;
-//    QStringList toModify;
+    QStringList toUpload;
+    QStringList toDownload;
+    QStringList toModify;
+    bool* used = new bool[remoteList->size()];
+    for(int i=0;i<remoteList->size();i++)
+        used[i] = false;
+    bool found = false;
 
-    for (int i=0; i<remoteList->size(); i++) {
-        for (int j=0; j<localList.size(); j++) {
-            if(remoteList->at(i).first == localList.at(j)) {
-//                if();
-
+    for (int i=0; i<localList.size(); i++) {
+        found = false;
+        QFileInfo info = FileServer::getInstance().getFileInfo(localList.at(i));
+        if(info==NULL)
+            break;
+        QDateTime time = info.lastModified();
+        for (int j=0; j<remoteList->size(); j++) {
+            if(used[j])
+                continue;
+            if(localList.at(i) == remoteList->at(j).first) {
+                if(time == remoteList->at(j).second) {
+                    found = true;
+                    break;
+                }
+                else {
+                    toModify.push_back(remoteList->at(j));
+                }
             }
         }
+        if(!found) {
+            toUpload.push_back(localList.at(i));
+        }
+    }
+    for (int i=0; i<remoteList->size(); i++) {
+        if ( used[i] == false )
+            toDownload.push_back(remoteList->at(i).first);
+
     }
     return true;
 }
