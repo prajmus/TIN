@@ -12,28 +12,16 @@ FileServer::FileServer()
 
 void FileServer::construct(QString path)
 {
-    qDebug() << "FileServer::construct(path)";
+//    qDebug() << "FileServer::construct(path)";
 
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
     for(int i = 0; i<fileList.size();i++) {
-        qDebug() << path + fileList[i];
+//        qDebug() << path + fileList[i];
         addFileToList(path+fileList[i]);
     }
 
-    qDebug() << "FileServer::construct(path) has ended"<<endl;
-}
-
-
-QFileInfo &FileServer::prvGetFileInfo(QString path)
-{
-//    return *(files.find(path)->second);
-}
-
-FileServer& FileServer::getInstance()
-{
-    FileServer instance;
-    return instance;
+//    qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
 
 void FileServer::addFileToList(QString path)
@@ -50,6 +38,19 @@ bool FileServer::removeFileFromList(QString path)
 //    files.erase(files.find(path));
     return true;
 }
+
+QFileInfo &FileServer::prvGetFileInfo(QString path)
+{
+//    return *(files.find(path)->second);
+}
+
+FileServer& FileServer::getInstance()
+{
+    FileServer instance;
+    return instance;
+}
+
+
 
 QFileInfo &FileServer::getFileInfo(QString path)
 {

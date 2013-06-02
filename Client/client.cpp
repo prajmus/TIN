@@ -29,13 +29,15 @@ void Client::run()
     thread->start();
 
     // Opening config file
-//    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
-    QStringList* config = readConfigFile();
+    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
+//    QStringList* config = readConfigFile();
 
     qDebug() << "Wypisanie listy:";
     for(int i = 0; i < config -> size(); i++) {
         qDebug() << config->at(i);
     }
+
+    this->path = config->at(2);
 
     // Compare monitored folder with local file list
 //    compareLocalCopies(QString path);
@@ -186,12 +188,17 @@ void Client::showStatus()
 void Client::showMonitoredFiles()
 {
     QTextStream qout(stdout);
-    FileServer::getInstance().construct("/home/qiubix/TIN/Client/");
-    qDebug() << "passed FileServer::getInstance().construct(path)";
-    QStringList fileList = FileServer::getInstance().getFileList();
-    qout << "List of monitored files:"<<endl;
-    for(int i=0; i<fileList.size(); i++) {
-        qout << fileList[i] << endl;
+    if(this->path != "") {
+        FileServer::getInstance().construct(this->path);
+    //    qDebug() << "passed FileServer::getInstance().construct(path)";
+        QStringList fileList = FileServer::getInstance().getFileList();
+        qout << "List of monitored files:"<<endl;
+        for(int i=0; i<fileList.size(); i++) {
+            qout << fileList[i] << endl;
+        }
+    }
+    else {
+        qout << "Path to monitored folder is empty!";
     }
 }
 
