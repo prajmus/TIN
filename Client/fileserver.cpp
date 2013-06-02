@@ -18,7 +18,7 @@ void FileServer::construct(QString path)
     QStringList fileList = dir->entryList();
     for(int i = 0; i<fileList.size();i++) {
         qDebug() << path + fileList[i];
-        addFileToList(path+fileList[i]);
+//        addFileToList(path+fileList[i]);
     }
 
     qDebug() << "FileServer::construct(path) has ended"<<endl;

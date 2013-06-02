@@ -29,11 +29,12 @@ void Client::run()
     thread->start();
 
     // Opening config file
-    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
-//    QStringList* config = readConfigFile();
+//    QStringList* config = readConfigFile("/home/qiubix/TIN/Client/config");
+    QStringList* config = readConfigFile();
+
     qDebug() << "Wypisanie listy:";
-    for(int i=0; i<config->size(); i++){
-        qDebug() << config[i];
+    for(int i = 0; i < config -> size(); i++) {
+        qDebug() << config->at(i);
     }
 
     // Compare monitored folder with local file list
@@ -65,10 +66,10 @@ QStringList* Client::readConfigFile(QString configPath)
 
         QTextStream qin(&file);
 
-        while(!file.atEnd()) {
+        while(!qin.atEnd()) {
             QString line = qin.readLine();
-//            qDebug() << line;
-            list->push_back(line);
+            if(line != "")
+                list->push_back(line);
         }
 
         file.close();
@@ -92,10 +93,11 @@ bool Client::compareLocalCopies(QString path)
     }
     QTextStream qin(&localList);
 
-    while(!localList.atEnd()) {
+    while(!qin.atEnd()) {
         line = qin.readLine();
         //qDebug() << line;
-        listedFiles->push_back(line);
+        if(line != "")
+            listedFiles->push_back(line);
     }
 
     localList.close();

@@ -20,13 +20,15 @@ void CommandParser::process()
     while(true) {
         getLine(command);
         list = command.split(' ', QString::SkipEmptyParts);
-        command = list.takeFirst();
 
-        // Pusta komenda
-        if (command.size() == 0) {
+        if (!list.empty()) {
+            command = list.takeFirst();
+        }
+        else {
             std::cout << "pusta komenda\n";
             continue;
         }
+
 
         // Wyjscie z programu
         if (command == "exit" || command == "quit") {
