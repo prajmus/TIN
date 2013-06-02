@@ -41,7 +41,7 @@ bool FileServer::removeFileFromList(QString path)
     return true;
 }
 
-QFileInfo * FileServer::prvGetFileInfo(QString path)
+QFileInfo &FileServer::prvGetFileInfo(QString path)
 {
 //    return *(files.find(path)->second);
 }
