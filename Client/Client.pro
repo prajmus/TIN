@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     CommandParser.cpp \
     filesystemwatcher.cpp \
     fileserver.cpp \
-    comparator.cpp
+    comparator.cpp \
+    file.cpp
 
 HEADERS += \
     client.h \
@@ -29,4 +30,5 @@ HEADERS += \
     CommandParser.h \
     filesystemwatcher.h \
     fileserver.h \
-    comparator.h
+    comparator.h \
+    file.h

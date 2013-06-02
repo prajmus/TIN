@@ -6,19 +6,15 @@
 #include <QMutex>
 #include <QFileInfo>
 #include <QStringList>
-#include "filesystemwatcher.h"
+#include "file.h"
 
 class FileServer
 {
-    std::map< QString, QSharedPointer<QFileInfo> > files;
-    std::map< QString, QSharedPointer<FileSystemWatcher> > watchers;
+    QList<File*> files;
 
     QMutex mutex;
 
     QString path;
-
-    void addWatcher(QString path);
-    void removeWatcher(QString path);
 
     QFileInfo &prvGetFileInfo(QString path);
 
