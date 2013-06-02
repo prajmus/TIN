@@ -96,9 +96,10 @@ bool Client::compareLocalCopies()
 {
     QList< std::pair<QString,QDateTime> >* remoteList = getRemoteList();
     QStringList localList = FileServer::getInstance().getFileList();
-    QStringList toUpload;
-    QStringList toDownload;
-    QStringList toModify;
+    QStringList* toUpload = new QStringList();
+    QStringList* toDownload = new QStringList();
+    QDateTime timeLocal;
+    QDateTime timeRemote;
     bool* used = new bool[remoteList->size()];
     for(int i=0;i<remoteList->size();i++)
         used[i] = false;
@@ -106,30 +107,34 @@ bool Client::compareLocalCopies()
 
     for (int i=0; i<localList.size(); i++) {
         found = false;
-        QFileInfo info = FileServer::getInstance().getFileInfo(localList.at(i));
+        QFileInfo* info = FileServer::getInstance().getFileInfo(localList.at(i));
         if(info==NULL)
             break;
-        QDateTime time = info.lastModified();
+        timeLocal = info->lastModified();
         for (int j=0; j<remoteList->size(); j++) {
             if(used[j])
                 continue;
             if(localList.at(i) == remoteList->at(j).first) {
-                if(time == remoteList->at(j).second) {
-                    found = true;
+                found = true;
+                timeRemote = remoteList->at(j).second;
+                if(timeLocal == timeRemote) {
                     break;
                 }
                 else {
-                    toModify.push_back(remoteList->at(j));
+                    if(timeLocal > timeRemote)
+                        toUpload->push_back(localList.at(i));
+                    else
+                        toDownload->push_back(remoteList->at(j).first);
                 }
             }
         }
         if(!found) {
-            toUpload.push_back(localList.at(i));
+            toUpload->push_back(localList.at(i));
         }
     }
     for (int i=0; i<remoteList->size(); i++) {
         if ( used[i] == false )
-            toDownload.push_back(remoteList->at(i).first);
+            toDownload->push_back(remoteList->at(i).first);
 
     }
     return true;
