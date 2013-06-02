@@ -41,7 +41,7 @@ bool FileServer::removeFileFromList(QString path)
     return true;
 }
 
-QFileInfo &FileServer::prvGetFileInfo(QString path)
+QFileInfo * FileServer::prvGetFileInfo(QString path)
 {
 //    return *(files.find(path)->second);
 }
@@ -52,11 +52,13 @@ FileServer& FileServer::getInstance()
     return instance;
 }
 
-
-
-QFileInfo &FileServer::getFileInfo(QString path)
+QFileInfo * FileServer::getFileInfo(QString path)
 {
-    return prvGetFileInfo(path);
+    for(int i = 0; i < files.size(); i++) {
+        if (path == files.at(i) -> getPath())
+            return files.at(i) -> getFileInfo();
+    }
+    return NULL;
 }
 
 QStringList FileServer::getFileList()
