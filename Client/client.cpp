@@ -29,20 +29,24 @@ void Client::run()
     thread->start();
 
     // Opening config file
-    QStringList* config = readConfigFile(_CONFIG_PATH);
+   // QStringList* config = readConfigFile(_CONFIG_PATH);
 //    QStringList* config = readConfigFile();
 
+    /*
     qDebug() << "Wypisanie listy:";
     for(int i = 0; i < config -> size(); i++) {
         qDebug() << config->at(i);
     }
+    //*/
 
+    /*
     this->path = config->at(0);
     qDebug() << path;
     if(this->path != "")
         FileServer::getInstance().construct(this->path);
     else
         qDebug() << "Empty path!";
+    //*/
 
     // Compare monitored folder with local file list
 //    compareLocalCopies(QString path);
@@ -52,9 +56,9 @@ void Client::run()
 }
 
 // Looks for config file and saves contents to list of configs
-QStringList* Client::readConfigFile(QString configPath)
+QStringList* Client::readConfigFile(QFile & file)
 {
-    QFile file(configPath);
+    //QFile file(configPath);
     QStringList* list = new QStringList();
     //QString line;
 
@@ -123,6 +127,12 @@ void Client::connectToServer()
     std::cout << "Connected to server\n";
 }
 
+void Client::logToServer() {
+    std::cout << "Login: " << login.toStdString() << "\n";
+    std::cout << "Password: " << password.toStdString() << "\n";
+    loggedIn = true;
+}
+
 
 // Gets remote list of user's files and synchronizes it with local copies.
 // Starts a new thread to exchange files in it
@@ -146,14 +156,86 @@ bool Client::loginAvailable(QString login)
     return true;
 }
 
+//
+void Client::logIn()
+{
+    if (loggedIn)
+        return;
+    QFile file("config");
+    if(!file.exists()) {
+        qDebug() << "File doesn't exist!";
+        QString ans;
+        std::cout << "Czy masz juz konto? (tak/nie)\n";
+        getLine(ans);
+        if(ans == "tak") {
+            std::cout << "Podaj sciezke do monitorowania.\n";
+            getLine(path);
+            std::cout << "Wprowadz login: ";
+            getLine(login);
+            std::cout << "Wprowadz haslo: ";
+            getLine(password);
+            logToServer();
+            if(loggedIn) {
+                createConfigFile();
+            }
+        }
+        else if (ans == "nie"){
+            createAccount();
+        }
+    }
+    else {
+        QStringList * config = readConfigFile(file);
+
+        qDebug() << "Wypisanie listy:";
+
+        int size = config -> size();
+
+        for(int i = 0; i < size; i++) {
+            qDebug() << config->at(i);
+        }
+
+        this -> path = config -> at(0);
+        qDebug() << path;
+
+        if (size == 1) {
+            //login i haslo do podania
+            std::cout << "Wprowadz login: ";
+            getLine(login);
+            std::cout << "Wprowadz haslo: ";
+            getLine(password);
+            logToServer();
+        }
+        else if (size == 2) {
+            //podac tylko haslo
+            login = config -> at(1);
+            std::cout << "Wprowadz haslo: ";
+            getLine(password);
+            logToServer();
+        }
+        else {
+            login = config -> at(1);
+            password = config -> at(2);
+            logToServer();
+        }
+    }
+    if(loggedIn) {
+        if(this -> path != "")
+            FileServer::getInstance().construct(this -> path);
+        else
+         qDebug() << "Empty path!";
+    }
+}
+
 // Creating new account
 void Client::createAccount() {
+    if(loggedIn)
+        return;
     QString login;
     QString password;
     QString password2;
 
-    Client::getInstance().connectToServer();
-
+    std::cout << "Podaj sciezke do monitorowania.\n";
+    getLine(path);
     std::cout << "Wprowadz login: ";
     getLine(login);
     while(! Client::getInstance().loginAvailable(login)) {
@@ -161,6 +243,7 @@ void Client::createAccount() {
         getLine(login);
         break;
     }
+    this -> login = login;
     while(true) {
         std::cout << "Wprowadz haslo: ";
         getLine(password);
@@ -169,17 +252,47 @@ void Client::createAccount() {
         if ( password != password2 ) {
             std::cout << "Hasla sie nie zgadzaja!\n";
         } else {
+            this -> password = password;
             Client::getInstance().registerUser(login,password);
-            std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
-            return;
+            if(loggedIn) {
+                createConfigFile();
+                std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
+                if(this -> path != "")
+                    FileServer::getInstance().construct(this -> path);
+                else
+                    qDebug() << "Empty path!";
+                return;
+            }
+            else {
+                return;
+            }
         }
     }
+}
+
+void Client::createConfigFile() {
+    QFile newFile("config");
+    if (!newFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        std::cout << "Cos poszlo nie tak.\n";
+        return;
+    }
+
+    QTextStream out(&newFile);
+    out << path << "\n";
+    out << login << "\n";
+    out << password << "\n";
+    newFile.close();
 }
 
 // Registering new user on server - sending a message (?) to register him
 void Client::registerUser(QString login, QString password)
 {
     std::cout << "User regisitered\n";
+    //TODO:
+    //prosba do serwera o zapisanie nowego uzytkownika
+    //jezeli sie udalo ti wywolanie logToServer()
+    //jezeli nie to jakies info o tym i prosze sprobowac pozniej
+    logToServer();
 }
 
 // Shows client's status, currently downloaded/uploaded files, current files in folder

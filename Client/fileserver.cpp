@@ -48,7 +48,7 @@ QFileInfo &FileServer::prvGetFileInfo(QString path)
 
 FileServer& FileServer::getInstance()
 {
-    FileServer instance;
+    static FileServer instance;
     return instance;
 }
 

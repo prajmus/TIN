@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include <QString>
 #include <QStringList>
+#include <QFile>
 
 #include "paths.h"
 
@@ -14,6 +15,9 @@ class Client
 private:
     QCoreApplication *app;
     QString path;           // monitored by client
+    QString login;
+    QString password;
+    bool loggedIn = false;
 
 protected:
     Client();
@@ -22,7 +26,7 @@ public:
     void run();
     static Client& getInstance();
 
-    QStringList* readConfigFile(QString configPath = "config");
+    QStringList* readConfigFile(QFile & file);
     bool loginAvailable(QString login);
     void createAccount();
     void registerUser(QString login, QString password);
@@ -34,6 +38,9 @@ public:
     void showStatus();
     void showMonitoredFiles();
 
+    void logIn();
+    void logToServer();
+    void createConfigFile();
 
     void showManageUsage();
     void showFolderUsers();

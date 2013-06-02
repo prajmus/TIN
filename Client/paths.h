@@ -1,6 +1,6 @@
 #ifndef PATHS_H
 #define PATHS_H
 
-#define _CONFIG_PATH "/home/qiubix/TIN/Client/config"
+#define CONFIG_PATH "C:\\Users\\Artur\\Documents\\GitHub\\TIN\\Client\\config"
 
 #endif // PATHS_H

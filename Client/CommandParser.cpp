@@ -36,6 +36,11 @@ void CommandParser::process()
             emit finished();
         }
 
+        // Zalogowanie
+        else if (command == "login") {
+            Client::getInstance().logIn();
+        }
+
         // Rejestracja uzytkownika
         else if (command == "register") {
             Client::getInstance().createAccount();
