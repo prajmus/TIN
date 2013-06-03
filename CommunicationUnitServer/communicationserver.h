@@ -1,26 +1,18 @@
-#ifndef FILETRANSFERSERVER_H
-#define FILETRANSFERSERVER_H
+#ifndef COMMUNICATIONSERVER_H
+#define COMMUNICATIONSERVER_H
 
 #include <QObject>
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QThread>
-#include <QTimer>
 #include <QList>
 
-#include "serverclient.h"
+const quint16 PORT = 5999;
 
-class QFile;
-
-
-
-const quint16 MIN_PORT = 6000;
-const quint16 MAX_PORT = 6100;
-
-class FileTransferServer : public QObject
+class CommunicationServer : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
   public:
     enum State {
       IDLE,
@@ -28,8 +20,8 @@ class FileTransferServer : public QObject
       CONNECTED
     };
 
-    FileTransferServer(QFile *file, bool isSender, QObject *parent = 0);
-    ~FileTransferServer();
+    CommunicationServer(QObject *parent = 0);
+    ~CommunicationServer();
 
     void execute();
     void stop();
@@ -40,12 +32,10 @@ class FileTransferServer : public QObject
     void threadFinished();
   protected:
     QTcpServer *m_server;
-    ServerClient *m_socket;
-    QFile *m_file;
+    QList<QTcpSocket *> *m_clientList;
     QThread m_serverThread;
     QThread *m_parentThread;
     State m_state;
-    bool m_sender;
 };
 
-#endif // FILETRANSFERSERVER_H
+#endif // COMMUNICATIONSERVER_H

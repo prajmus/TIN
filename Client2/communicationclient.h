@@ -44,7 +44,7 @@ class CommunicationClient : public QObject
     QByteArray m_buffer;
     QThread *m_parentThread;
     QThread m_clientThread;
-    qint64 m_nextBlockSize;
+    qint16 m_nextBlockSize;
     bool m_sender;
     void processResponse(quint8, QString, QString, quint16);
 };

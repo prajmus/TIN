@@ -1,16 +1,15 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef COMMUNICATIONCLIENT_H
+#define COMMUNICATIONCLIENT_H
 
 #include <QObject>
 #include <QTcpSocket>
-#include <QFile>
 #include <QThread>
 
-class Client : public QObject
+class CommunicationClient : public QObject
 {
     Q_OBJECT
   public:
-    enum State{
+    enum State {
       IDLE,
       CONNECTED,
       INITIALIZED,
@@ -21,34 +20,30 @@ class Client : public QObject
       ERROR
     };
 
-
-    Client(quint16 port, QFile *file, bool isSender, QObject *parent = 0);
-    ~Client();
-    void sendFile();
+    CommunicationClient(QObject *parent = 0);
+    ~CommunicationClient();
+    
     void execute();
+    void closeConnection();
   public slots:
     void connectToServer();
     void signalConnected();
     void error();
     void receiveData();
     void connectionClosedByServer();
-    void writeBytes(qint64);
+    void sendMessage();
   signals:
     void connected(bool);
     void disconnected();
   private:
-    qint64 m_currentlyReceived;
-    qint64 m_fileSize;
-    quint16 m_port;
     State m_state;
-    QFile *m_file;
     QTcpSocket *m_socket;
     QByteArray m_buffer;
     QThread *m_parentThread;
     QThread m_clientThread;
+    qint64 m_nextBlockSize;
     bool m_sender;
-    void getInit();
-    void closeConnection();
+    void processResponse(quint8, QString, QString, quint16);
 };
 
-#endif // CLIENT_H
+#endif // COMMUNICATIONCLIENT_H

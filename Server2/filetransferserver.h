@@ -33,12 +33,17 @@ class FileTransferServer : public QObject
 
     void execute();
     void stop();
+    quint16 getPort();
   private slots:
     void addNewClient();
     void startListening();
     void disconnectSlot();
     void threadFinished();
+  signals:
+    void listening();
+    void transferCompleted();
   protected:
+    quint16 m_port;
     QTcpServer *m_server;
     ServerClient *m_socket;
     QFile *m_file;

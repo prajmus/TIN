@@ -32,4 +32,5 @@ HEADERS += \
     fileserver.h \
     comparator.h \
     file.h \
-    paths.h
+    paths.h \
+    opcodes.h
