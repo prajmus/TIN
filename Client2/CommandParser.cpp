@@ -40,7 +40,9 @@ void CommandParser::process()
         else if (command == "login") {
             Client::getInstance().logIn();
         }
-
+        else if (command == "help") {
+            Client::getInstance().listCommands();
+        }
         // Rejestracja uzytkownika
         else if (command == "register") {
             Client::getInstance().createAccount();

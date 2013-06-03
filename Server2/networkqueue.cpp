@@ -20,8 +20,9 @@ NetworkQueue &NetworkQueue::getInstance()
 
 void NetworkQueue::addMessage(QSharedPointer<Message> msg)
 {
-    QMutexLocker locker(&mutex);
+    mutex.lock();
     queue.push(msg);
+    mutex.unlock();
     emit messageReady();
 }
 

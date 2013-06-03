@@ -24,6 +24,7 @@ class CommunicationServer : public QObject
 
     ~CommunicationServer();
     static CommunicationServer& getInstance();
+    QList<QTcpSocket *> *m_clientList;
     void execute();
     void stop();
   private slots:
@@ -33,11 +34,12 @@ class CommunicationServer : public QObject
     void threadFinished();
     void sendMessage();
     void readData();
+    void listFiles(QTcpSocket *);
     void processResponse(QTcpSocket*, quint8, QString, QString, quint16);
+    void spreadFile(QString , QTcpSocket *);
   protected:
     CommunicationServer(QObject *parent = 0);
     QTcpServer *m_server;
-    QList<QTcpSocket *> *m_clientList;
     QThread m_serverThread;
     QThread *m_parentThread;
     State m_state;

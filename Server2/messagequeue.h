@@ -21,8 +21,11 @@ class MessageQueue : public QObject
     ~MessageQueue();
     static MessageQueue& getInstance();
     void addMessage(QSharedPointer<Message> msg);
+    void transferFinished(QString, bool sender, QTcpSocket *fromWho);
   signals:
     void messageReady();
+    void spreadFile(QString, QTcpSocket*);
+    void listFiles(QTcpSocket*);
 };
 
 

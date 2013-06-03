@@ -51,7 +51,8 @@ public:
     void addFolderUser(QStringList loginList);
     void removeFolderUser(QStringList loginList);
 
-signals:
+    void listCommands();
+  signals:
     void finished();
 public slots:
     void aboutToQuitApp();

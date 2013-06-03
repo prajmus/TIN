@@ -4,9 +4,11 @@
 #include <QDebug>
 #include <QFile>
 
+#include "messagequeue.h"
 
-FileTransferServer::FileTransferServer(QFile *file, bool isSender, QObject *parent) : m_file(file),
-  m_state(IDLE), m_sender(isSender)
+
+FileTransferServer::FileTransferServer(QString file, bool isSender, QTcpSocket* withWho, QObject *parent) :
+  m_fileName(file), m_state(IDLE), m_sender(isSender), m_withWho(withWho)
 {
   m_parentThread = QThread::currentThread();
 
@@ -38,6 +40,7 @@ void FileTransferServer::startListening()
       qDebug() << i;
       m_state = LISTENING;
       m_port = i;
+      m_file = new QFile(m_fileName);
       emit listening();
       return;
     }
@@ -58,9 +61,8 @@ void FileTransferServer::disconnectSlot()
 
 void FileTransferServer::threadFinished()
 {
-  emit transferCompleted();
+  MessageQueue::getInstance().transferFinished(m_fileName, m_sender, m_withWho);
   m_state = IDLE;
-  delete m_file;
   this->deleteLater();
 }
 

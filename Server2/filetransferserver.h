@@ -28,7 +28,7 @@ class FileTransferServer : public QObject
       CONNECTED
     };
 
-    FileTransferServer(QFile *file, bool isSender, QObject *parent = 0);
+    FileTransferServer(QString, bool isSender, QTcpSocket* withWho, QObject *parent = 0);
     ~FileTransferServer();
 
     void execute();
@@ -47,9 +47,11 @@ class FileTransferServer : public QObject
     QTcpServer *m_server;
     ServerClient *m_socket;
     QFile *m_file;
+    QString m_fileName;
     QThread m_serverThread;
     QThread *m_parentThread;
     State m_state;
+    QTcpSocket* m_withWho;
     bool m_sender;
 };
 

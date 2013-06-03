@@ -3,6 +3,7 @@
 #include "opcodes.h"
 #include "accountserver.h"
 #include "filetransferserver.h"
+#include "fileserver.h"
 
 #include <QMutexLocker>
 #include <QEventLoop>
@@ -27,6 +28,14 @@ void MessageQueue::addMessage(QSharedPointer<Message> msg)
     emit messageReady();
 }
 
+void MessageQueue::transferFinished(QString file, bool sender, QTcpSocket* fromWho)
+{
+  FileServer::getInstance().addFileToList(file, 0, QDateTime::currentDateTime());
+  if(sender)
+    return;
+  else
+    emit spreadFile(file, fromWho);
+}
 
 MessageQueue& MessageQueue::getInstance()
 {
@@ -63,24 +72,41 @@ void MessageQueue::processOperation()
       NetworkQueue::getInstance().addMessage(msg);
     }
   }
-  else if (msg->opCode == NEW_FILE) {
-    QFile *file = new QFile(msg->str1);
-    FileTransferServer transfer(file, false);
+  else if (msg->opCode == NEW_FILE || msg->opCode == MODIFY_FILE) {
+    qDebug() << msg->str1;
+    if(msg->opCode == MODIFY_FILE) {
+      FileServer::getInstance().removeFile(msg->str1);
+    }
+    FileTransferServer transfer(msg->str1, false, msg->sender);
 
     transfer.execute();
     QEventLoop loop;
 
     loop.connect(&transfer, SIGNAL(listening()), SLOT(quit()));
-    loop.connect(&transfer, SIGNAL(transferCompleted()), SLOT(quit()));
 
     loop.exec();
 
     quint16 port = transfer.getPort();
     msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", false, port));
+  }
+  else if (msg->opCode == DELETE_FILE) {
+    FileServer::getInstance().removeFile(msg->str1);
+    msg = QSharedPointer<Message>(new Message(msg->sender, DELETE_FILE, msg->str1, "", false, false));
+  }
+  else if (msg->opCode == LIST_FILES) {
+    emit listFiles(msg->sender);
+  }
+  else if(msg->opCode == REQ_FILE) {
+    FileTransferServer transfer(msg->str1, true, msg->sender);
+
+    transfer.execute();
+    QEventLoop loop;
+
+    loop.connect(&transfer, SIGNAL(listening()), SLOT(quit()));
 
     loop.exec();
 
-
-
+    quint16 port = transfer.getPort();
+    msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", false, port));
   }
 }

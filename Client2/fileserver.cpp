@@ -54,9 +54,9 @@ FileServer& FileServer::getInstance()
 
 
 
-QFileInfo &FileServer::getFileInfo(QString path)
+QFileInfo *FileServer::getFileInfo(QString path)
 {
-    return prvGetFileInfo(path);
+    return &prvGetFileInfo(path);
 }
 
 QStringList FileServer::getFileList()

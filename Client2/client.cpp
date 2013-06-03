@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QSharedPointer>
+#include <QDateTime>
 
 
 Client::Client(){
@@ -99,35 +100,70 @@ QStringList* Client::readConfigFile(QFile & file)
 // Compares local copies of files with local list of files
 bool Client::compareLocalCopies(QString path)
 {
-    QDir* dir = new QDir(".");
-    QStringList currentFiles = dir->entryList();
-    QFile localList(path);
-    QStringList* listedFiles = new QStringList();
-    QString line;
-    int i;
-    if(!localList.exists() || !localList.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Couldn't open file! Maybe it doesn't exist.";
-        return false;
-    }
-    QTextStream qin(&localList);
+  QStringList localList = FileServer::getInstance().getFileList();
+  QSharedPointer<Message> msg;
+//  QStringList* toUpload = new QStringList();
+//  QStringList* toDownload = new QStringList();
+  QDateTime timeLocal;
+  QDateTime timeRemote;
+  bool* used = new bool[remoteList->size()];
+  for(int i=0;i<remoteList->size();i++)
+    used[i] = false;
+  bool found = false;
 
-    while(!qin.atEnd()) {
-        line = qin.readLine();
-        //qDebug() << line;
-        if(line != "")
-            listedFiles->push_back(line);
+  for (int i=0; i<localList.size(); i++) {
+    found = false;
+    QFileInfo* info = FileServer::getInstance().getFileInfo(localList.at(i));
+    if(info==NULL)
+      break;
+    timeLocal = info->lastModified();
+    for (int j=0; j<remoteList->size(); j++) {
+      if(used[j])
+        continue;
+      if(localList.at(i) == remoteList->at(j).first) {
+        found = true;
+        timeRemote = remoteList->at(j).second;
+        if(timeLocal == timeRemote) {
+          break;
+        }
+        else {
+          if(timeLocal > timeRemote) {
+            msg = QSharedPointer<Message>(new Message(MODIFY_FILE, localList.at(i), "", true));
+            NetworkQueue::getInstance().addMessage(msg);
+          }
+          else
+            msg = QSharedPointer<Message>(new Message(REQ_FILE, localList.at(i), "", true));
+            NetworkQueue::getInstance().addMessage(msg);
+        }
+      }
     }
-
-    localList.close();
-
-    //TODO: porownanie listy plikow lokalnych z tym, co sie znajduje w katalogu
-    //      i podjecie odpowiednich akcji
-    for(int i=0; i<listedFiles->size(); i++) {
-        // TODO
+    if(!found) {
+      msg = QSharedPointer<Message>(new Message(MODIFY_FILE, localList.at(i), "", true));
+      NetworkQueue::getInstance().addMessage(msg);
     }
-    return true;
+  }
+  for (int i=0; i<remoteList->size(); i++) {
+    if ( used[i] == false )
+      msg = QSharedPointer<Message>(new Message(REQ_FILE, localList.at(i), "", true));
+      NetworkQueue::getInstance().addMessage(msg);
+  }
+  return true;
 }
 
+
+void Client::listCommands() {
+    std::cout << "Available commands:" << std::endl;
+    std::cout << "login" << std::endl;
+    std::cout << "register" << std::endl;
+    std::cout << "exit" << std::endl;
+    std::cout << "quit" << std::endl;
+    std::cout << "list" << std::endl;
+    std::cout << "status" << std::endl;
+    //std::cout << "manage" << std::endl;
+    //std::cout << "manage.list" << std::endl;
+    //std::cout << "manage.add" << std::endl;
+    //std::cout << "manage.remove" << std::endl;
+}
 // Connects client to server
 void Client::connectToServer()
 {
