@@ -2,23 +2,23 @@
 
 #include <QMutexLocker>
 #include <iostream>
+#include <QDebug>
 
 Database::Database()
 {
 }
 
-bool Database::dbOpen()
+Database::~Database()
 {
-    QSqlDatabase db = QSqlDatabase::database();
-    db = QSqlDatabase::addDatabase("QSQLITE", "connection");
-    db.setDatabaseName("my.db.sqlite");
-    //std::cout << "--- db opened ---" << std::endl;
-    return db.open();
+    db.close();
 }
 
-void Database::dbClose()
+bool Database::dbOpen()
 {
-    //db.close();
+    db = QSqlDatabase::database();
+    db = QSqlDatabase::addDatabase("QSQLITE", "connection");
+    db.setDatabaseName("my.db.sqlite");
+    return db.open();
 }
 
 std::vector< std::vector<QString> > Database::makeQuery(QString dbQuery, int mode)
@@ -26,13 +26,11 @@ std::vector< std::vector<QString> > Database::makeQuery(QString dbQuery, int mod
     QMutexLocker locker(&dbMutex);
     QSqlQuery query( QSqlDatabase::database("connection"));
     std::vector< std::vector<QString> > results;
-    /*if (!dbOpen()) {
+    if (!db.isOpen()) {
         results.clear();
         std::cout << "Cannot open database" << std::endl;
         return results;
-    }  */
-    //std::cout << "- making query -" << std::endl;
-    //std::cout << dbQuery.toStdString() << "\n" << std::endl;
+    }
     query.exec(dbQuery);
     if (mode != 0) {        
         while (query.next()) {
@@ -49,17 +47,16 @@ std::vector< std::vector<QString> > Database::makeQuery(QString dbQuery, int mod
 
 bool Database::create()
 {
-    bool ret = false;
-    if (dbOpen()) {
-        QSqlQuery query( QSqlDatabase::database("connection"));
-        query.exec("create table accounts "
-                         "(id integer primary key, "
-                         "name varchar(20), "
-                         "pass varchar(30))");
-
-    }    
-    //std::cout << "--- db created ---" << std::endl;
-    return ret;
+    if (!db.isOpen()) {
+        std::cout << "Cannot open database" << std::endl;
+        return false;
+    }
+    QSqlQuery query( QSqlDatabase::database("connection"));
+    query.exec("create table accounts "
+                     "(id integer primary key, "
+                     "name varchar(20), "
+                     "pass varchar(30))");
+    return true;
 }
 
 int Database::getLastInsertId()

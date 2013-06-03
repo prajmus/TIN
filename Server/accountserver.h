@@ -24,6 +24,7 @@ public:
     bool registerUser(QString username, QString password);
     bool deleteUser(QString username);
     static AccountServer &getInstance();
+    int listBase();
 };
 
 #endif // ACCOUNTSERVER_H

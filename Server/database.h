@@ -10,10 +10,11 @@ class Database
 {
     QMutex dbMutex;
     int lastInsertId;
-    void dbClose();
+    QSqlDatabase db;
 protected:
     Database();
 public:
+    ~Database();
     static Database &getInstance();
     std::vector< std::vector<QString> > makeQuery(QString dbQuery, int mode);
     bool create();
