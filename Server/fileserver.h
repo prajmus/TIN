@@ -14,14 +14,16 @@ class FileServer
     QMutex mutex;
     void addWatcher(QString path);
     void removeWatcher(QString path);
+    bool removeFileFromServer(QString path);
     FileInfo &prvGetFileInfo(QString path);
 protected:
     FileServer();
 public:
     static FileServer &getInstance();
-    void addFileToList(QString path, int id);
-    bool removeFileFromList(QString path);
+    bool addFileToList(QString path, int id);
+    bool removeFile(QString path);
     FileInfo &getFileInfo(QString path);
+    int listFiles();
 };
 
 #endif // FILESERVER_H

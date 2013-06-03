@@ -1,8 +1,10 @@
 #include "fileserver.h"
 
 #include <QDir>
+#include <QFile>
 #include <QMutexLocker>
 #include <QDebug>
+#include <iostream>
 
 FileServer::FileServer()
 {
@@ -26,6 +28,17 @@ void FileServer::removeWatcher(QString path)
     watchers.erase(watchers.find(path));
 }
 
+bool FileServer::removeFileFromServer(QString path)
+{
+    QMutexLocker locker(&mutex);
+    QFile file(path);
+    if (!file.exists()) {
+        std::cout << "File does not exist!" << std::endl;
+        return false;
+    }
+    return file.remove();
+}
+
 FileInfo &FileServer::prvGetFileInfo(QString path)
 {
     return *(files.find(path)->second);
@@ -37,28 +50,37 @@ FileInfo &FileServer::getFileInfo(QString path)
     return prvGetFileInfo(path);
 }
 
-void FileServer::addFileToList(QString path, int id)
+int FileServer::listFiles()
 {
-    mutex.lock();
-    files.insert(std::make_pair(path, new FileInfo(path, id)));
-    qDebug() << "dodaje plik do listy " << path << id;
-    qDebug() << files.find(path)->first; // @Karol: dodaje do listy co widać
-    mutex.unlock();
-    addWatcher(path);
+    std::map< QString, QSharedPointer<FileInfo> >::iterator it = files.begin();
+    for (; it != files.end(); it++) {
+        qDebug() << it->first;
+    }
+    return files.size();
 }
 
-bool FileServer::removeFileFromList(QString path)
+bool FileServer::addFileToList(QString path, int id)
+{
+    mutex.lock();
+    QFile file(path);
+    if (!file.exists()) {
+        std::cout << "File does not exist!" << std::endl;
+        return false;
+    }
+    files.insert(std::make_pair(path, new FileInfo(path, id)));
+    mutex.unlock();
+    addWatcher(path);
+    return true;
+}
+
+bool FileServer::removeFile(QString path)
 {
     mutex.lock();
     if (files.find(path) == files.end()) {
         return false;
     }
-    qDebug() << "znaleziono plik: " << files.find(path)->first << "na liście plików";
     files.erase(files.find(path));
-    if (files.find(path) == files.end()) {
-        qDebug() << "wyjebalem";
-    }
     mutex.unlock();
-    removeWatcher(path);
-    return true;
+    removeWatcher(path);    
+    return removeFileFromServer(path);
 }
