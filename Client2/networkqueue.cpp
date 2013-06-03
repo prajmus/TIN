@@ -25,3 +25,11 @@ void NetworkQueue::addMessage(QSharedPointer<Message> msg)
     queue.push(msg);
     emit messageReady();
 }
+
+QSharedPointer<Message> NetworkQueue::pop()
+{
+  QMutexLocker locker(&mutex);
+  QSharedPointer<Message> msg = queue.front();
+  queue.pop();
+  return msg;
+}

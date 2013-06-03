@@ -21,6 +21,7 @@ public:
     ~NetworkQueue();
     static NetworkQueue &getInstance();
     void addMessage(QSharedPointer<Message> msg);
+    QSharedPointer<Message> pop();
 signals:
     void messageReady();
 };

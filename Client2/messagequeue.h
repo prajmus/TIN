@@ -2,24 +2,28 @@
 #define MESSAGEQUEUE_H
 
 #include "message.h"
+#include "client.h"
+#include "filetransferclient.h"
 
 #include <queue>
 #include <QSharedPointer>
 #include <QMutex>
 
-class MessageQueue
+class MessageQueue : public QObject
 {
+    Q_OBJECT
     std::queue< QSharedPointer<Message> > queue;
     QMutex mutex;
-    void mainLoop();
-    virtual void processOperation(QSharedPointer<Message> msg);
+  private slots:
+    void processOperation();
   protected:
-    MessageQueue();
+    MessageQueue(QObject *parent = 0);
   public:
     ~MessageQueue();
+    static MessageQueue& getInstance();
     void addMessage(QSharedPointer<Message> msg);
   signals:
-    messageReady();
+    void messageReady();
 };
 
 

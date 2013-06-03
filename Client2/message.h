@@ -6,7 +6,7 @@
 class Message
 {
 public:
-    Message(quint8, QString, QString, quint16, bool);
+    Message(quint8, QString, QString, bool, quint16 port = 0);
     quint8 opCode;
     QString str1;
     QString str2;

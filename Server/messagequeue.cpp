@@ -14,16 +14,7 @@ MessageQueue::~MessageQueue()
 
 void MessageQueue::addMessage(QSharedPointer<Message> msg)
 {
-    if (!running)
-        return;
     QMutexLocker locker(&mutex);
     queue.push(msg);
-}
-
-
-void MessageQueue::stop()
-{
-    if (!running)
-        return;
-    running = false;
+    emit mes
 }
