@@ -2,6 +2,7 @@
 #define OPCODES_H
 
 #include <QObject>
+#include <QHostAddress>
 
 const quint8 REGISTER = 0;
 const quint8 REGISTER_SUCCESSFUL = 1;
@@ -21,5 +22,7 @@ const quint8 FILE_CHANGED = 41;
 const quint8 LIST_FILES = 50;
 const quint8 FILES_LISTING = 51;
 const quint8 DISCONNECTING = 60;
+
+const QHostAddress SERVER_ADDRESS("192.168.0.18");
 
 #endif // OPCODES_H

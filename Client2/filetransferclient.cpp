@@ -1,4 +1,5 @@
 #include "filetransferclient.h"
+#include "opcodes.h"
 
 #include <QHostAddress>
 #include <QDataStream>
@@ -11,8 +12,7 @@ FileTransferClient::FileTransferClient(quint16 port, QFile *file, bool isSender,
   m_parentThread = QThread::currentThread();
   connect(&m_clientThread, SIGNAL(started()), this, SLOT(connectToServer()));
 
-//  file = new QFile("obraz.png");
-//  file->open(QIODevice::WriteOnly);
+  m_currentlyReceived = m_fileSize = 0;
 }
 
 FileTransferClient::~FileTransferClient()
@@ -21,6 +21,8 @@ FileTransferClient::~FileTransferClient()
     qDebug() << "Still runnin'";
 
   }
+  qDebug() << "off";
+  delete m_file;
   delete m_socket;
 }
 
@@ -39,16 +41,15 @@ void FileTransferClient::connectToServer()
   connect(m_socket, SIGNAL(disconnected()), this, SLOT(connectionClosedByServer()));
   connect(m_socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
   connect(m_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(writeBytes(qint64)));
+  connect(&m_clientThread, SIGNAL(finished()), this, SLOT(threadFinished()));
   if(m_socket->state() != QTcpSocket::ConnectedState)
-    m_socket->connectToHost(QHostAddress::LocalHost, m_port);
-
-
+    m_socket->connectToHost(SERVER_ADDRESS, m_port);
 
 }
 
 void FileTransferClient::signalConnected()
 {
-  qDebug() << "true";
+  qDebug() << "file connected";
   emit connected(true);
   m_state = CONNECTED;
   if(m_sender)
@@ -91,7 +92,7 @@ void FileTransferClient::receiveData()
     } else if (m_currentlyReceived > m_fileSize) {
       qDebug() << "Received too large file";
       m_state = ERROR;
-
+      m_file->close();
       m_socket->disconnectFromHost();
     }
   }
@@ -112,13 +113,15 @@ void FileTransferClient::getInit()
 
 void FileTransferClient::sendFile()
 {
-  m_file->open(QIODevice::ReadOnly);
+  if (m_file->open(QIODevice::ReadOnly))
+    qDebug() << "otwarty plik";
   m_state = TRANSFERING;
 
   QByteArray fileSize;
-  QDataStream in(&fileSize, QIODevice::WriteOnly);
-  in << m_file->size();
+  QDataStream out(&fileSize, QIODevice::WriteOnly);
+  out << m_file->size();
 
+  m_socket->write(fileSize);
 
   m_buffer = m_file->read(8096);
   //added if block to file transfer defect fixed
@@ -134,6 +137,7 @@ void FileTransferClient::sendFile()
   //added if block to file transfer defect fixed
   if ((m_state == ALL_READ) && (m_buffer.size() == 0)) {
     m_state = ALL_WRITTEN;
+    m_socket->flush();
   }
 
 }
@@ -169,14 +173,20 @@ void FileTransferClient::writeBytes(qint64 bytes)
     }
   }
 }
-void FileTransferClient::connectionClosedByServer()
+
+void FileTransferClient::threadFinished()
 {
-  m_socket->close();
-  emit disconnected();
+  m_state = IDLE;
+  this->deleteLater();
 }
 
-void FileTransferClient::closeConnection()
+void FileTransferClient::connectionClosedByServer()
 {
-
+  moveToThread(m_parentThread);
+  m_clientThread.moveToThread(m_parentThread);
+  m_socket->close();
+  emit disconnected();
+  m_clientThread.quit();
+  this->deleteLater();
 }
 

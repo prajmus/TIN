@@ -33,6 +33,7 @@ class FileTransferClient : public QObject
     void receiveData();
     void connectionClosedByServer();
     void writeBytes(qint64);
+    void threadFinished();
   signals:
     void connected(bool);
     void disconnected();

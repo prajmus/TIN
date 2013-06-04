@@ -16,25 +16,42 @@ FileServer::FileServer()
 void FileServer::construct(QString path)
 {
 //    qDebug() << "FileServer::construct(path)";
-
+    qDebug() << path;
     QDir* dir = new QDir(path);
-    QStringList fileList = dir->entryList();
+    QFileInfoList fileList = dir->entryInfoList();
     for(int i = 0; i<fileList.size();i++) {
-//        qDebug() << path + fileList[i];
-        addFileToList(path+fileList[i]);
+        qDebug() << fileList.at(i).fileName();
+        if (fileList.at(i).fileName()=="." || fileList.at(i).fileName()=="..")
+            continue;
+        if (fileList.at(i).isDir())
+            constructRecursive(fileList.at(i).fileName()+"/");
+        else
+            addFileToList(fileList.at(i).fileName());
     }
+}
 
-//    qDebug() << "FileServer::construct(path) has ended"<<endl;
+void FileServer::constructRecursive(QString path)
+{
+    QDir *dir = new QDir(Client::getInstance().getPath()+path);
+    QFileInfoList fileList = dir->entryInfoList();
+    for (int i=0; i<fileList.size();i++) {
+        qDebug() << fileList.at(i).fileName();
+        if (fileList.at(i).fileName()=="." || fileList.at(i).fileName()=="..")
+            continue;
+        if(fileList.at(i).isDir())
+            constructRecursive(path+fileList.at(i).fileName()+"/");
+        else
+            addFileToList(path+fileList.at(i).fileName());
+    }
+    delete dir;
 }
 
 void FileServer::addFileToList(QString path)
 {
-//    qDebug() << "FileServer::addFileToList:"<< path;
-//    files.insert(files.end(),new File(path));
+    qDebug() << "addwatcher";
     files.push_back(new QFileInfo(path));
     qDebug() << path;
-    watcher.addPath(path);
-    //qDebug() << files.size();
+    watcher.addPath(Client::getInstance().getPath() + path);
 }
 
 void FileServer::removeFileFromDisk(QString path)
@@ -81,7 +98,7 @@ QStringList FileServer::getFileList()
 //    qDebug() << "FileServer::getFileList()";
     QStringList list;
     for(int i=0; i<files.size();i++) {
-        qDebug() << files.at(i)->filePath();
+        qDebug() << files.at(i)->fileName();
         if (files.at(i)->fileName() == "." || files.at(i)->fileName() == "..")
           continue;
         list.push_back(files.at(i)->filePath());

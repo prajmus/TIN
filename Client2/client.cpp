@@ -123,6 +123,7 @@ bool Client::compareLocalCopies()
       if(used[j])
         continue;
       if(localList.at(i) == remoteList->at(j).first) {
+          used[j]=true;
         found = true;
         timeRemote = remoteList->at(j).second;
         if(timeLocal == timeRemote) {
@@ -141,14 +142,15 @@ bool Client::compareLocalCopies()
       }
     }
     if(!found) {
-      msg = QSharedPointer<Message>(new Message(MODIFY_FILE, localList.at(i), "", true));
+      msg = QSharedPointer<Message>(new Message(NEW_FILE, localList.at(i), "", true));
       NetworkQueue::getInstance().addMessage(msg);
     }
   }
   for (int i=0; i<remoteList->size(); i++) {
-    if ( used[i] == false )
-      msg = QSharedPointer<Message>(new Message(REQ_FILE, localList.at(i), "", true));
+    if ( used[i] == false ) {
+      msg = QSharedPointer<Message>(new Message(REQ_FILE, remoteList->at(i).first, "", true));
       NetworkQueue::getInstance().addMessage(msg);
+    }
   }
   return true;
 }
@@ -171,18 +173,6 @@ void Client::logToServer()
   loop.connect(&CommunicationClient::getInstance(), SIGNAL(loginFailed()), SLOT(quit()));
 
   loop.exec();
-
-//  std::cout << "Login: " << login.toStdString() << "\n";
-//  std::cout << "Password: " << password.toStdString() << "\n";
-//  loggedIn = true;
-}
-
-
-// Gets remote list of user's files and synchronizes it with local copies.
-// Starts a new thread to exchange files in it
-void Client::synchronizeFiles()
-{
-
 }
 
 // Terminate client's connection with server and inform server, that client may
@@ -190,6 +180,7 @@ void Client::synchronizeFiles()
 void Client::terminateClient()
 {
     std::cout << "Sending server signal to terminate connection with client.\n";
+    CommunicationClient::getInstance().closeConnection();
     quit();
 }
 

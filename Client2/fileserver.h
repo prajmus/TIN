@@ -39,7 +39,8 @@ class FileServer : public QObject
     QFileInfo *getFileInfo(QString path);
     QStringList getFileList();
 
-  signals:
+    void constructRecursive(QString path);
+    signals:
     void fileModified(QString);
     void fileDeleted(QString);
     void newFile(QString);

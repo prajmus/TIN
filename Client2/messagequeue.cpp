@@ -5,6 +5,7 @@
 #include "fileserver.h"
 
 #include <QMutexLocker>
+#include <QDir>
 
 MessageQueue::MessageQueue(QObject *parent)
 {
@@ -23,8 +24,9 @@ MessageQueue::~MessageQueue()
 
 void MessageQueue::addMessage(QSharedPointer<Message> msg)
 {
-    QMutexLocker locker(&mutex);
+    mutex.lock();
     queue.push(msg);
+    mutex.unlock();
     emit messageReady();
 }
 
@@ -48,11 +50,21 @@ void MessageQueue::processOperation()
       //utwórz nowy plik
   }
   else if (msg->opCode ==  PUSH_FILE) {
+      QFileInfo info(path);
+      QString str = info.path();
+      QDir dir(".");
+      qDebug() << dir.absolutePath() << ' '<< path;
+      dir.mkpath(str);
       QFile *file = new QFile(path);
       FileTransferClient *transfer = new FileTransferClient(msg->port, file, true);
       transfer->execute();
   }
   else if (msg->opCode == PULL_FILE || msg->opCode == MODIFY_FILE) {
+      QFileInfo info(path);
+      QString str = info.path();
+      QDir dir(".");
+      qDebug() << dir.absolutePath() << ' ' << path;
+      dir.mkpath(str);
       QFile *file = new QFile(path);
       FileTransferClient *transfer = new FileTransferClient(msg->port, file, false);
       transfer->execute();
