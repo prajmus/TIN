@@ -31,14 +31,10 @@ void FileServer::addFileToList(QString path)
 {
 //    qDebug() << "FileServer::addFileToList:"<< path;
 //    files.insert(files.end(),new File(path));
-<<<<<<< HEAD
     files.push_back(new QFileInfo(path));
+    qDebug() << path;
     watcher.addPath(path);
-    qDebug() << files.size();
-=======
-    files.push_back(new File(path));
-//    qDebug() << files.size();
->>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
+    //qDebug() << files.size();
 }
 
 void FileServer::removeFileFromDisk(QString path)
@@ -48,8 +44,7 @@ void FileServer::removeFileFromDisk(QString path)
 }
 
 bool FileServer::removeFileFromList(QString path)
-{
-<<<<<<< HEAD
+{ 
   for (int i=0;i<files.size();++i) {
     if(files.at(i)->path() == path) {
       files.removeAt(i);
@@ -57,15 +52,6 @@ bool FileServer::removeFileFromList(QString path)
     }
   }
   return false;
-=======
-    for (int i=0; i<files.size(); i++) {
-        if (files.at(i)->getPath()==path) {
-            files.removeAt(i);
-            return true;
-        }
-    }
-    return false;
->>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
 }
 
 QFileInfo &FileServer::prvGetFileInfo(QString path)
@@ -84,8 +70,8 @@ FileServer& FileServer::getInstance()
 QFileInfo *FileServer::getFileInfo(QString path)
 {
     for(int i = 0; i < files.size(); i++) {
-        if (path == files.at(i) -> getPath())
-            return files.at(i) -> getFileInfo();
+        if (path == files.at(i)->path())
+            return files.at(i);
     }
     return NULL;
 }
@@ -95,13 +81,8 @@ QStringList FileServer::getFileList()
 //    qDebug() << "FileServer::getFileList()";
     QStringList list;
     for(int i=0; i<files.size();i++) {
-<<<<<<< HEAD
-        qDebug() << files.at(i)->path();
-        list.push_back(files.at(i)->path());
-=======
-//        qDebug() << files.at(i)->getPath();
-        list.push_back(files.at(i)->getPath());
->>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
+        qDebug() << files.at(i)->filePath();
+        list.push_back(files.at(i)->filePath());
     }
     return list;
 }
@@ -120,6 +101,7 @@ void FileServer::directoryChanged(QString path)
 
 void FileServer::fileChanged(QString path)
 {
+  qDebug() << "File changed " + path;
   QFileInfo info(path);
   if (info.exists()) {
     emit fileModified(path);

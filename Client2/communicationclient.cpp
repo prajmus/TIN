@@ -99,6 +99,7 @@ void CommunicationClient::sendMessage()
 {
   QSharedPointer<Message> msg = NetworkQueue::getInstance().pop();
   QByteArray block;
+  qDebug() << "Sending " << msg->opCode;
   QDataStream out(&block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_8);
   out << quint16(0) << msg->opCode << msg->str1 << msg->str2 << msg->port;

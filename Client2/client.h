@@ -18,13 +18,8 @@ class Client
     QString login;
     QString password;
     QList<std::pair<QString, QDateTime> > *remoteList;
-<<<<<<< HEAD
     bool loggedIn = false;
-=======
-    bool loggedIn;
 
-protected:
->>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
     Client();
 
   public:

@@ -18,13 +18,8 @@
 #include <QDateTime>
 
 
-<<<<<<< HEAD
 Client::Client() {
 
-=======
-Client::Client(){
-    loggedIn = false;
->>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
 }
 
 // Main loop
@@ -225,6 +220,7 @@ void Client::logIn()
             logToServer();
             if(loggedIn) {
                 createConfigFile();
+                //FileServer::getInstance().construct(path);
             }
         }
         else if (ans == "nie"){
@@ -267,8 +263,10 @@ void Client::logIn()
         }
     }
     if(loggedIn) {
-        if(this -> path != "")
+        if(this -> path != "") {
             FileServer::getInstance().construct(this -> path);
+            NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(LIST_FILES, "","",false)));
+        }
         else
          qDebug() << "Empty path!";
     }
