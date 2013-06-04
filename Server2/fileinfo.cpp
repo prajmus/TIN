@@ -2,10 +2,9 @@
 
 #include <QMutexLocker>
 
-FileInfo::FileInfo(QString path, int id, QDateTime time)
+FileInfo::FileInfo(QString path, QDateTime time)
 {
     filePath = path;
-    lastModifierId = id;
     date = time;
 }
 
@@ -20,8 +19,3 @@ QDateTime FileInfo::getDate()
   return date;
 }
 
-int FileInfo::getId()
-{
-    QMutexLocker locker(&mutex);
-    return lastModifierId;
-}

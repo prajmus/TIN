@@ -1,4 +1,5 @@
 #include "fileserver.h"
+#include "opcodes.h"
 
 #include <QDir>
 #include <QFile>
@@ -9,6 +10,36 @@
 
 FileServer::FileServer()
 {
+    QDir* dir = new QDir(PATH);
+    QFileInfoList fileList = dir->entryInfoList();
+    for (int i=0; i<fileList.size();i++) {
+        qDebug() << fileList.at(i).filePath();
+        qDebug() << fileList.at(i).fileName();
+        if (fileList.at(i).fileName()=="." || fileList.at(i).fileName()=="..")
+            continue;
+        if (fileList.at(i).isDir())
+            loadListRecursive(fileList.at(i).fileName()+"/");
+        else
+            addFileToList(fileList.at(i).fileName(),fileList.at(i).lastModified());
+    }
+    delete dir;
+}
+
+void FileServer::loadListRecursive(QString path)
+{
+    qDebug() << "loadRecursive()";
+    QDir* dir = new QDir(PATH+path);
+    QFileInfoList fileList = dir->entryInfoList();
+    for (int i=0; i<fileList.size();i++) {
+        qDebug() << fileList.at(i).fileName();
+        if (fileList.at(i).fileName()=="." || fileList.at(i).fileName()=="..")
+            continue;
+        if(fileList.at(i).isDir())
+            loadListRecursive(path+fileList.at(i).fileName()+"/");
+        else
+            addFileToList(path+fileList.at(i).fileName(),fileList.at(i).lastModified());
+    }
+    delete dir;
 }
 
 FileServer &FileServer::getInstance()
@@ -61,17 +92,19 @@ std::vector<std::pair<QString, QDateTime> > FileServer::listFiles()
     return t;
 }
 
-bool FileServer::addFileToList(QString path, int id, QDateTime time)
+bool FileServer::addFileToList(QString path, QDateTime time)
 {
     mutex.lock();
-    QFile file(path);
+    qDebug () << "add " + PATH + path;
+    QFile file(PATH+path);
     if (!file.exists()) {
         std::cout << "File does not exist!" << std::endl;
+        mutex.unlock();
         return false;
     }
-    files.insert(std::make_pair(path, QSharedPointer<FileInfo>(new FileInfo(path, id, time))));
-    mutex.unlock();
+    files.insert(std::make_pair(path, QSharedPointer<FileInfo>(new FileInfo(path, time))));
     //addWatcher(path);
+    mutex.unlock();
     return true;
 }
 
@@ -79,10 +112,11 @@ bool FileServer::removeFile(QString path)
 {
     mutex.lock();
     if (files.find(path) == files.end()) {
+        mutex.unlock();
         return false;
     }
     files.erase(files.find(path));
     mutex.unlock();
     //removeWatcher(path);
-    return removeFileFromServer(path);
+    return removeFileFromServer(PATH + path);
 }

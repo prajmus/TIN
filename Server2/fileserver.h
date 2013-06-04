@@ -18,11 +18,12 @@ class FileServer
     void removeWatcher(QString path);
     bool removeFileFromServer(QString path);
     FileInfo &prvGetFileInfo(QString path);
+    void loadListRecursive(QString path);
 protected:
     FileServer();
 public:
     static FileServer &getInstance();
-    bool addFileToList(QString path, int id, QDateTime time);
+    bool addFileToList(QString path, QDateTime time);
     bool removeFile(QString path);
     FileInfo &getFileInfo(QString path);
     std::vector< std::pair< QString, QDateTime> > listFiles();

@@ -9,10 +9,9 @@ class FileInfo
 {
     QString filePath;
     QDateTime date;
-    int lastModifierId;
     QMutex mutex;
 public:
-    FileInfo(QString path, int id, QDateTime time);
+    FileInfo(QString path, QDateTime time);
     QString getPath();
     QDateTime getDate();
     int getId();

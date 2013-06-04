@@ -136,7 +136,8 @@ void CommunicationServer::listFiles(QTcpSocket * socket)
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_8);
-  out << quint16(0) << FILES_LISTING;
+  quint32 size = t.size();
+  out << quint16(0) << FILES_LISTING << size;
   qDebug() << FILES_LISTING;
   for(auto s : t) {
     out << s.first << s.second;

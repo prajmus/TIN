@@ -9,13 +9,13 @@ ServerClient::ServerClient(QTcpSocket *socket, QFile *file, bool isSender, QObje
   connect(socket, SIGNAL(bytesWritten(qint64)), this, SLOT(writeBytes(qint64)));
   connect(socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
   connect(socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
+  m_fileSize = m_currentlyReceived = 0;
 }
 
 
 void ServerClient::sendInit()
 {
   m_socket->write("s");
-  qDebug() << "po wysylaniu";
 }
 
 void ServerClient::sendFile()
@@ -93,6 +93,9 @@ void ServerClient::writeBytes(qint64 bytes)
 void ServerClient::receiveData()
 {
   if(m_state != TRANSFER_FINISHED) {
+      if(!m_file->isOpen())
+        m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
+
     if (m_state == CONNECTED) {
       m_state = TRANSFERING;
 
@@ -114,7 +117,7 @@ void ServerClient::receiveData()
     } else if (m_currentlyReceived > m_fileSize) {
       qDebug() << "Received too large file";
       m_state = ERROR;
-
+      m_file->close();
       m_socket->disconnectFromHost();
     }
   }

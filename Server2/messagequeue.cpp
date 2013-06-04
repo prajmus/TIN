@@ -23,14 +23,16 @@ MessageQueue::~MessageQueue()
 
 void MessageQueue::addMessage(QSharedPointer<Message> msg)
 {
-    QMutexLocker locker(&mutex);
+//    QMutexLocker locker(&mutex);
+    mutex.lock();
     queue.push(msg);
+    mutex.unlock();
     emit messageReady();
 }
 
 void MessageQueue::transferFinished(QString file, bool sender, QTcpSocket* fromWho)
 {
-  FileServer::getInstance().addFileToList(file, 0, QDateTime::currentDateTime());
+  FileServer::getInstance().addFileToList(file, QDateTime::currentDateTime());
   if(sender)
     return;
   else
@@ -77,27 +79,29 @@ void MessageQueue::processOperation()
     if(msg->opCode == MODIFY_FILE) {
       FileServer::getInstance().removeFile(msg->str1);
     }
-    FileTransferServer *transfer = new FileTransferServer(msg->str1, false, msg->sender);
+    FileTransferServer *transfer = new FileTransferServer(PATH+msg->str1, false, msg->sender);
 
-    transfer->execute();
     QEventLoop loop;
-
     loop.connect(transfer, SIGNAL(listening()), SLOT(quit()));
+    transfer->execute();
+
 
     loop.exec();
 
     quint16 port = transfer->getPort();
-    msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", false, port));
+    msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", false, true, port));
+    NetworkQueue::getInstance().addMessage(msg);
   }
   else if (msg->opCode == DELETE_FILE) {
     FileServer::getInstance().removeFile(msg->str1);
     msg = QSharedPointer<Message>(new Message(msg->sender, DELETE_FILE, msg->str1, "", false, false));
+    NetworkQueue::getInstance().addMessage(msg);
   }
   else if (msg->opCode == LIST_FILES) {
     emit listFiles(msg->sender);
   }
   else if(msg->opCode == REQ_FILE) {
-    FileTransferServer *transfer = new FileTransferServer(msg->str1, true, msg->sender);
+    FileTransferServer *transfer = new FileTransferServer(PATH+msg->str1, true, msg->sender);
 
     transfer->execute();
     QEventLoop loop;
@@ -107,6 +111,7 @@ void MessageQueue::processOperation()
     loop.exec();
 
     quint16 port = transfer->getPort();
-    msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", false, port));
+    msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", false,true,port));
+    NetworkQueue::getInstance().addMessage(msg);
   }
 }

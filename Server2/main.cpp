@@ -13,10 +13,11 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
+    FileServer::getInstance();
     CommunicationServer::getInstance().execute();
     //FileServer::getInstance().viewFileList();
-
+//    AccountServer::getInstance();
+//    Database::getInstance().create();
 
 
 
