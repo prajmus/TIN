@@ -45,7 +45,7 @@ void CommunicationClient::connectToServer()
   connect(m_socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
   connect(&NetworkQueue::getInstance(), SIGNAL(messageReady()), this, SLOT(sendMessage()));
   if(m_socket->state() != QTcpSocket::ConnectedState)
-    m_socket->connectToHost(QHostAddress::LocalHost, 5999);
+    m_socket->connectToHost(QHostAddress("192.168.46.215"), 5999);
 }
 
 void CommunicationClient::signalConnected()
