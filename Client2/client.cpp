@@ -117,7 +117,7 @@ bool Client::compareLocalCopies()
     found = false;
     QFileInfo* info = FileServer::getInstance().getFileInfo(localList.at(i));
     if(info==NULL)
-      break;
+      continue;
     timeLocal = info->lastModified();
     for (int j=0; j<remoteList->size(); j++) {
       if(used[j])
@@ -133,9 +133,10 @@ bool Client::compareLocalCopies()
             msg = QSharedPointer<Message>(new Message(MODIFY_FILE, localList.at(i), "", true));
             NetworkQueue::getInstance().addMessage(msg);
           }
-          else
+          else {
             msg = QSharedPointer<Message>(new Message(REQ_FILE, localList.at(i), "", true));
             NetworkQueue::getInstance().addMessage(msg);
+          }
         }
       }
     }

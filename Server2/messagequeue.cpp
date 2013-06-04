@@ -77,16 +77,16 @@ void MessageQueue::processOperation()
     if(msg->opCode == MODIFY_FILE) {
       FileServer::getInstance().removeFile(msg->str1);
     }
-    FileTransferServer transfer(msg->str1, false, msg->sender);
+    FileTransferServer *transfer = new FileTransferServer(msg->str1, false, msg->sender);
 
-    transfer.execute();
+    transfer->execute();
     QEventLoop loop;
 
-    loop.connect(&transfer, SIGNAL(listening()), SLOT(quit()));
+    loop.connect(transfer, SIGNAL(listening()), SLOT(quit()));
 
     loop.exec();
 
-    quint16 port = transfer.getPort();
+    quint16 port = transfer->getPort();
     msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", false, port));
   }
   else if (msg->opCode == DELETE_FILE) {
@@ -97,16 +97,16 @@ void MessageQueue::processOperation()
     emit listFiles(msg->sender);
   }
   else if(msg->opCode == REQ_FILE) {
-    FileTransferServer transfer(msg->str1, true, msg->sender);
+    FileTransferServer *transfer = new FileTransferServer(msg->str1, true, msg->sender);
 
-    transfer.execute();
+    transfer->execute();
     QEventLoop loop;
 
-    loop.connect(&transfer, SIGNAL(listening()), SLOT(quit()));
+    loop.connect(transfer, SIGNAL(listening()), SLOT(quit()));
 
     loop.exec();
 
-    quint16 port = transfer.getPort();
+    quint16 port = transfer->getPort();
     msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", false, port));
   }
 }

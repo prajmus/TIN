@@ -21,6 +21,7 @@ FileTransferServer::~FileTransferServer()
     qDebug() << "Still runnin'";
     disconnectSlot();
   }
+  qDebug() << "file off";
   delete m_server;
 }
 

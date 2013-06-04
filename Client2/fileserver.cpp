@@ -46,7 +46,7 @@ void FileServer::removeFileFromDisk(QString path)
 bool FileServer::removeFileFromList(QString path)
 { 
   for (int i=0;i<files.size();++i) {
-    if(files.at(i)->path() == path) {
+    if(files.at(i)->filePath() == path) {
       files.removeAt(i);
       return true;
     }
@@ -70,7 +70,7 @@ FileServer& FileServer::getInstance()
 QFileInfo *FileServer::getFileInfo(QString path)
 {
     for(int i = 0; i < files.size(); i++) {
-        if (path == files.at(i)->path())
+        if (path == files.at(i)->filePath())
             return files.at(i);
     }
     return NULL;
@@ -82,6 +82,8 @@ QStringList FileServer::getFileList()
     QStringList list;
     for(int i=0; i<files.size();i++) {
         qDebug() << files.at(i)->filePath();
+        if (files.at(i)->fileName() == "." || files.at(i)->fileName() == "..")
+          continue;
         list.push_back(files.at(i)->filePath());
     }
     return list;

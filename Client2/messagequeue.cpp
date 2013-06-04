@@ -44,18 +44,18 @@ void MessageQueue::processOperation()
   }
   QString path = Client::getInstance().getPath() + msg->str1;
 
-  if(msg->opCode == NEW_FILE) {
+  if (msg->opCode == NEW_FILE) {
       //utwórz nowy plik
   }
-  else if (msg->opCode==  PUSH_FILE) {
+  else if (msg->opCode ==  PUSH_FILE) {
       QFile *file = new QFile(path);
-      FileTransferClient transfer(msg->port, file, true);
-      transfer.execute();
+      FileTransferClient *transfer = new FileTransferClient(msg->port, file, true);
+      transfer->execute();
   }
   else if (msg->opCode == PULL_FILE || msg->opCode == MODIFY_FILE) {
       QFile *file = new QFile(path);
-      FileTransferClient transfer(msg->port, file, false);
-      transfer.execute();
+      FileTransferClient *transfer = new FileTransferClient(msg->port, file, false);
+      transfer->execute();
   }
   else if (msg->opCode == DELETE_FILE) {
     FileServer::getInstance().removeFileFromDisk(msg->str1);

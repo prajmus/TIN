@@ -88,6 +88,8 @@ void CommunicationClient::receiveData()
         files->append(std::make_pair(str1, date));
       }
       Client::getInstance().setRemoteList(files);
+      Client::getInstance().compareLocalCopies();
+      return;
     }
     processResponse(opCode, str1, str2, port);
     m_nextBlockSize = 0;
@@ -110,6 +112,7 @@ void CommunicationClient::sendMessage()
 
 void CommunicationClient::processResponse(quint8 opCode, QString str1, QString str2, quint16 port)
 {
+  qDebug() << opCode << ' ' << str1 << ' ' << port;
   QSharedPointer<Message> msg = QSharedPointer<Message>(new Message(opCode, str1, str2, false, port));
   switch (opCode) {
     case REGISTER_SUCCESSFUL:

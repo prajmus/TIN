@@ -18,7 +18,7 @@ class Client
     QString login;
     QString password;
     QList<std::pair<QString, QDateTime> > *remoteList;
-    bool loggedIn = false;
+    bool loggedIn;
 
     Client();
 

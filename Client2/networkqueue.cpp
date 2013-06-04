@@ -7,10 +7,10 @@ NetworkQueue::NetworkQueue(QObject *parent)
 
 NetworkQueue::~NetworkQueue()
 {
-    while (queue.size()) {
-        queue.front()->return_msg(false);
-        queue.pop();
-    }
+  while (queue.size()) {
+    queue.front()->return_msg(false);
+    queue.pop();
+  }
 }
 
 NetworkQueue &NetworkQueue::getInstance()
@@ -21,9 +21,10 @@ NetworkQueue &NetworkQueue::getInstance()
 
 void NetworkQueue::addMessage(QSharedPointer<Message> msg)
 {
-    QMutexLocker locker(&mutex);
-    queue.push(msg);
-    emit messageReady();
+  mutex.lock();
+  queue.push(msg);
+  mutex.unlock();
+  emit messageReady();
 }
 
 QSharedPointer<Message> NetworkQueue::pop()
