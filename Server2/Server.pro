@@ -43,4 +43,5 @@ HEADERS += \
     communicationserver.h \
     networkqueue.h \
     messagequeue.h \
+    opcodes.h \
     message.h
