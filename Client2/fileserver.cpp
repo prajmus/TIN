@@ -15,25 +15,30 @@ FileServer::FileServer()
 
 void FileServer::construct(QString path)
 {
-    qDebug() << "FileServer::construct(path)";
+//    qDebug() << "FileServer::construct(path)";
 
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
     for(int i = 0; i<fileList.size();i++) {
-        qDebug() << path + fileList[i];
+//        qDebug() << path + fileList[i];
         addFileToList(path+fileList[i]);
     }
 
-    qDebug() << "FileServer::construct(path) has ended"<<endl;
+//    qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
 
 void FileServer::addFileToList(QString path)
 {
 //    qDebug() << "FileServer::addFileToList:"<< path;
 //    files.insert(files.end(),new File(path));
+<<<<<<< HEAD
     files.push_back(new QFileInfo(path));
     watcher.addPath(path);
     qDebug() << files.size();
+=======
+    files.push_back(new File(path));
+//    qDebug() << files.size();
+>>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
 }
 
 void FileServer::removeFileFromDisk(QString path)
@@ -44,6 +49,7 @@ void FileServer::removeFileFromDisk(QString path)
 
 bool FileServer::removeFileFromList(QString path)
 {
+<<<<<<< HEAD
   for (int i=0;i<files.size();++i) {
     if(files.at(i)->path() == path) {
       files.removeAt(i);
@@ -51,6 +57,15 @@ bool FileServer::removeFileFromList(QString path)
     }
   }
   return false;
+=======
+    for (int i=0; i<files.size(); i++) {
+        if (files.at(i)->getPath()==path) {
+            files.removeAt(i);
+            return true;
+        }
+    }
+    return false;
+>>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
 }
 
 QFileInfo &FileServer::prvGetFileInfo(QString path)
@@ -68,17 +83,25 @@ FileServer& FileServer::getInstance()
 
 QFileInfo *FileServer::getFileInfo(QString path)
 {
-    return &prvGetFileInfo(path);
+    for(int i = 0; i < files.size(); i++) {
+        if (path == files.at(i) -> getPath())
+            return files.at(i) -> getFileInfo();
+    }
+    return NULL;
 }
 
 QStringList FileServer::getFileList()
 {
-    qDebug() << "FileServer::getFileList()";
+//    qDebug() << "FileServer::getFileList()";
     QStringList list;
-    qDebug() << files.size();
     for(int i=0; i<files.size();i++) {
+<<<<<<< HEAD
         qDebug() << files.at(i)->path();
         list.push_back(files.at(i)->path());
+=======
+//        qDebug() << files.at(i)->getPath();
+        list.push_back(files.at(i)->getPath());
+>>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
     }
     return list;
 }

@@ -18,8 +18,13 @@
 #include <QDateTime>
 
 
+<<<<<<< HEAD
 Client::Client() {
 
+=======
+Client::Client(){
+    loggedIn = false;
+>>>>>>> ea35973d635b944fc3cce8b25a9df9718a6b9b02
 }
 
 // Main loop
@@ -97,8 +102,10 @@ QStringList* Client::readConfigFile(QFile & file)
     return list;
 }
 
-// Compares local copies of files with local list of files
-bool Client::compareLocalCopies(QString path)
+// Compares local copies of files with copies on server
+// returns true when all files are up to date
+// returns false when files need to be updated
+bool Client::compareLocalCopies()
 {
   QStringList localList = FileServer::getInstance().getFileList();
   QSharedPointer<Message> msg;
@@ -151,19 +158,6 @@ bool Client::compareLocalCopies(QString path)
 }
 
 
-void Client::listCommands() {
-    std::cout << "Available commands:" << std::endl;
-    std::cout << "login" << std::endl;
-    std::cout << "register" << std::endl;
-    std::cout << "exit" << std::endl;
-    std::cout << "quit" << std::endl;
-    std::cout << "list" << std::endl;
-    std::cout << "status" << std::endl;
-    //std::cout << "manage" << std::endl;
-    //std::cout << "manage.list" << std::endl;
-    //std::cout << "manage.add" << std::endl;
-    //std::cout << "manage.remove" << std::endl;
-}
 // Connects client to server
 void Client::connectToServer()
 {
@@ -322,6 +316,21 @@ void Client::createAccount() {
             }
         }
     }
+}
+
+
+void Client::listCommands() {
+    std::cout << "Available commands:" << std::endl;
+    std::cout << "login" << std::endl;
+    std::cout << "register" << std::endl;
+    std::cout << "exit" << std::endl;
+    std::cout << "quit" << std::endl;
+    std::cout << "list" << std::endl;
+    std::cout << "status" << std::endl;
+    //std::cout << "manage" << std::endl;
+    //std::cout << "manage.list" << std::endl;
+    //std::cout << "manage.add" << std::endl;
+    //std::cout << "manage.remove" << std::endl;
 }
 
 void Client::createConfigFile() {

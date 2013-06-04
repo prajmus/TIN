@@ -35,6 +35,7 @@ class FileServer : public QObject
     void addFileToList(QString path);
     bool removeFileFromList(QString path);
 
+
     QFileInfo *getFileInfo(QString path);
     QStringList getFileList();
 
