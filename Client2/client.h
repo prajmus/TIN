@@ -39,7 +39,6 @@ public:
 
     void showStatus();
     void showMonitoredFiles();
-    void listCommands();
 
     void logIn();
     void logToServer();
