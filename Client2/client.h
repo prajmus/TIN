@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 #include <QFile>
+#include <QDateTime>
 
 #include "paths.h"
 
@@ -18,7 +19,7 @@ private:
     QString login;
     QString password;
     QList<std::pair<QString, QDateTime> > *remoteList;
-    bool loggedIn = false;
+    bool loggedIn;
 
 protected:
     Client();
@@ -33,11 +34,12 @@ public:
     void registerUser(QString login, QString password);
     void connectToServer();
     void terminateClient();
-    bool compareLocalCopies(QString path = "localList");
+    bool compareLocalCopies();
     void synchronizeFiles();
 
     void showStatus();
     void showMonitoredFiles();
+    void listCommands();
 
     void logIn();
     void logToServer();

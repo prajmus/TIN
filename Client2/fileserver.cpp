@@ -12,16 +12,16 @@ FileServer::FileServer()
 
 void FileServer::construct(QString path)
 {
-    qDebug() << "FileServer::construct(path)";
+//    qDebug() << "FileServer::construct(path)";
 
     QDir* dir = new QDir(path);
     QStringList fileList = dir->entryList();
     for(int i = 0; i<fileList.size();i++) {
-        qDebug() << path + fileList[i];
+//        qDebug() << path + fileList[i];
         addFileToList(path+fileList[i]);
     }
 
-    qDebug() << "FileServer::construct(path) has ended"<<endl;
+//    qDebug() << "FileServer::construct(path) has ended"<<endl;
 }
 
 void FileServer::addFileToList(QString path)
@@ -29,16 +29,18 @@ void FileServer::addFileToList(QString path)
 //    qDebug() << "FileServer::addFileToList:"<< path;
 //    files.insert(files.end(),new File(path));
     files.push_back(new File(path));
-    qDebug() << files.size();
+//    qDebug() << files.size();
 }
 
 bool FileServer::removeFileFromList(QString path)
 {
-//    if (files.find(path) == files.end()) {
-//        return false;
-//    }
-//    files.erase(files.find(path));
-    return true;
+    for (int i=0; i<files.size(); i++) {
+        if (files.at(i)->getPath()==path) {
+            files.removeAt(i);
+            return true;
+        }
+    }
+    return false;
 }
 
 QFileInfo &FileServer::prvGetFileInfo(QString path)
@@ -56,16 +58,19 @@ FileServer& FileServer::getInstance()
 
 QFileInfo *FileServer::getFileInfo(QString path)
 {
-    return &prvGetFileInfo(path);
+    for(int i = 0; i < files.size(); i++) {
+        if (path == files.at(i) -> getPath())
+            return files.at(i) -> getFileInfo();
+    }
+    return NULL;
 }
 
 QStringList FileServer::getFileList()
 {
-    qDebug() << "FileServer::getFileList()";
+//    qDebug() << "FileServer::getFileList()";
     QStringList list;
-    qDebug() << files.size();
     for(int i=0; i<files.size();i++) {
-        qDebug() << files.at(i)->getPath();
+//        qDebug() << files.at(i)->getPath();
         list.push_back(files.at(i)->getPath());
     }
     return list;
