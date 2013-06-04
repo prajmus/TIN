@@ -44,7 +44,7 @@ void CommunicationServer::startListening()
   m_clientList = new QList<QTcpSocket* >();
   connect(m_server, SIGNAL(newConnection()), this, SLOT(addNewClient()));
   connect(&NetworkQueue::getInstance(), SIGNAL(messageReady()), this, SLOT(sendMessage()));
-  connect(&MessageQueue::getInstance(), SIGNAL(spreadFile(QFile*,QTcpSocket*)), this, SLOT(spreadFile));
+  connect(&MessageQueue::getInstance(), SIGNAL(spreadFile(QString, QTcpSocket*)), this, SLOT(spreadFile(QString, QTcpSocket*)));
   connect(&MessageQueue::getInstance(), SIGNAL(listFiles(QTcpSocket*)), this, SLOT(listFiles(QTcpSocket*)));
   if(m_server->listen(QHostAddress::Any, PORT)) {
     m_state = LISTENING;

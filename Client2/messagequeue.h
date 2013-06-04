@@ -16,6 +16,9 @@ class MessageQueue : public QObject
     QMutex mutex;
   private slots:
     void processOperation();
+    void fileModified(QString);
+    void fileDeleted(QString);
+    void newFile(QString);
   protected:
     MessageQueue(QObject *parent = 0);
   public:

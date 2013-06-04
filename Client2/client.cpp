@@ -18,7 +18,7 @@
 #include <QDateTime>
 
 
-Client::Client(){
+Client::Client() {
 
 }
 

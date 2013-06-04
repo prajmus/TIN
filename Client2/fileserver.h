@@ -3,25 +3,32 @@
 
 #include <map>
 #include <QSharedPointer>
+#include <QFileSystemWatcher>
 #include <QMutex>
 #include <QFileInfo>
 #include <QStringList>
 #include "file.h"
 
-class FileServer
+class FileServer : public QObject
 {
-    QList<File*> files;
+    Q_OBJECT
+    QList<QFileInfo *> files;
 
     QMutex mutex;
 
     QString path;
 
     QFileInfo &prvGetFileInfo(QString path);
+    QFileSystemWatcher watcher;
 
-protected:
+  protected:
     FileServer();
-
-public:        
+  private slots:
+    void fileChanged(QString path);
+    void directoryChanged(QString path);
+  public slots:
+    void removeFileFromDisk(QString path);
+  public:
     void construct(QString path = ".");
     static FileServer &getInstance();
 
@@ -30,6 +37,12 @@ public:
 
     QFileInfo *getFileInfo(QString path);
     QStringList getFileList();
+
+  signals:
+    void fileModified(QString);
+    void fileDeleted(QString);
+    void newFile(QString);
+
 };
 
 #endif // FILESERVER_H

@@ -9,18 +9,21 @@
 
 #include "paths.h"
 
-class Client
+class Client : public QObject
 {
-  private:
+  Q_OBJECT
+private:
     QCoreApplication *app;
     QString path;           // monitored by client
     QString login;
     QString password;
     QList<std::pair<QString, QDateTime> > *remoteList;
     bool loggedIn = false;
+
+protected:
     Client();
 
-  public:
+public:
     void run();
     static Client& getInstance();
 
