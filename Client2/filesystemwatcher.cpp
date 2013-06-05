@@ -1,4 +1,5 @@
 #include "filesystemwatcher.h"
+#include "messagequeue.h"
 
 #include <QDebug>
 
@@ -13,7 +14,7 @@ FileSystemWatcher::FileSystemWatcher(QString path, QObject* parent) : QObject(pa
 void FileSystemWatcher::fileChangedSlot(QString path)
 {
     qDebug() << "zmieniono plik:" << path;
-    // wywolanie czegos z parametrem path
+    MessageQueue::getInstance().fileModified(path);
 }
 
 void FileSystemWatcher::dirChangedSlot(QString path)

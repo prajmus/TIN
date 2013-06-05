@@ -86,7 +86,7 @@ void CommunicationClient::receiveData()
       in >> numberOfFiles;
       while (numberOfFiles--) {
         in >> str1 >> date;
-        files->append(std::make_pair(str1, date));
+        files->append(std::make_pair(Client::getInstance().getPath() + str1, date));
       }
       Client::getInstance().setRemoteList(files);
       Client::getInstance().compareLocalCopies();

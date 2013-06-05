@@ -12,14 +12,15 @@
 class FileServer : public QObject
 {
     Q_OBJECT
-    QList<QFileInfo *> files;
+    QList<QFileInfo> files;
+    QList<QDateTime *> dates;
 
     QMutex mutex;
 
     QString path;
 
     QFileInfo &prvGetFileInfo(QString path);
-    QFileSystemWatcher watcher;
+    QFileSystemWatcher *watcher;
 
   protected:
     FileServer();
@@ -32,7 +33,7 @@ class FileServer : public QObject
     void construct(QString path = ".");
     static FileServer &getInstance();
 
-    void addFileToList(QString path);
+    void addFileToList(QFileInfo info);
     bool removeFileFromList(QString path);
 
 
@@ -40,6 +41,8 @@ class FileServer : public QObject
     QStringList getFileList();
 
     void constructRecursive(QString path);
+    QList<QFileInfo> getList();
+    QList<QDateTime *> getDates();
     signals:
     void fileModified(QString);
     void fileDeleted(QString);

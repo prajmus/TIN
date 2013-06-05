@@ -24,9 +24,9 @@ class FileTransferClient : public QObject
 
     FileTransferClient(quint16 port, QFile *file, bool isSender, QObject *parent = 0);
     ~FileTransferClient();
-    void sendFile();
     void execute();
   public slots:
+    void sendFile();
     void connectToServer();
     void signalConnected();
     void error();
@@ -38,6 +38,7 @@ class FileTransferClient : public QObject
     void connected(bool);
     void disconnected();
   private:
+    bool bitRead;
     qint64 m_currentlyReceived;
     qint64 m_fileSize;
     quint16 m_port;

@@ -23,6 +23,7 @@ const quint8 LIST_FILES = 50;
 const quint8 FILES_LISTING = 51;
 const quint8 DISCONNECTING = 60;
 
-const QHostAddress SERVER_ADDRESS("192.168.0.18");
+//const QHostAddress SERVER_ADDRESS("192.168.0.18");
+const QHostAddress SERVER_ADDRESS(QHostAddress::LocalHost);
 
 #endif // OPCODES_H

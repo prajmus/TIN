@@ -1,21 +1,15 @@
 #include "file.h"
 
-File::File(QString path)
+File::File(QFileInfo *fileInfo)
 {
-    this->path = path;
-    this->fileInfo = new QFileInfo(path);
-    this->watcher = new FileSystemWatcher(path);
+    this->fileInfo = fileInfo;
+    this->watcher = new FileSystemWatcher(fileInfo->filePath());
 }
 
 File::~File()
 {
     delete watcher;
     delete fileInfo;
-}
-
-QString File::getPath()
-{
-    return path;
 }
 
 QFileInfo* File::getFileInfo()

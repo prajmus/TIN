@@ -16,6 +16,7 @@
 #include <QDebug>
 #include <QSharedPointer>
 #include <QDateTime>
+#include <QFileInfo>
 
 
 Client::Client() {
@@ -36,31 +37,6 @@ void Client::run()
     thread->connect(thread, SIGNAL(finished()),SLOT(deleteLater()));
     thread->start();
 
-    // Opening config file
-   // QStringList* config = readConfigFile(_CONFIG_PATH);
-//    QStringList* config = readConfigFile();
-
-    /*
-    qDebug() << "Wypisanie listy:";
-    for(int i = 0; i < config -> size(); i++) {
-        qDebug() << config->at(i);
-    }
-    //*/
-
-    /*
-    this->path = config->at(0);
-    qDebug() << path;
-    if(this->path != "")
-        FileServer::getInstance().construct(this->path);
-    else
-        qDebug() << "Empty path!";
-    //*/
-
-    // Compare monitored folder with local file list
-//    compareLocalCopies(QString path);
-
-    // Synchronize changes with server
-//    synchronizeFiles();
 }
 
 // Looks for config file and saves contents to list of configs
@@ -97,6 +73,66 @@ QStringList* Client::readConfigFile(QFile & file)
     return list;
 }
 
+QString Client::trimm(QString path)
+{
+    int i=0;
+    while(true) {
+        if(path.at(i) != '/')
+            ++i;
+        else
+            break;
+    }
+    path.remove(0,i);
+    return path;
+}
+
+void Client::refreshLocalFiles()
+{
+    qDebug() << "--------------------------REFRESH -------------------";
+    QList<QFileInfo> oldFiles = FileServer::getInstance().getList();
+    QList<QDateTime *> oldDates = FileServer::getInstance().getDates();
+    FileServer::getInstance().construct(path);
+    QList<QFileInfo> newFiles = FileServer::getInstance().getList();
+    bool *used = new bool[newFiles.size()];
+    for(int i=0;i<newFiles.size();++i)
+        used[i] = false;
+    for(int i=0;i<oldFiles.size();++i)
+    {
+        bool found = false;
+        for(int j=0;j<newFiles.size();++j) {
+            qDebug() << "old: " << oldFiles.at(i).filePath() << " new: " << newFiles.at(j).filePath();
+            if(oldFiles.at(i).filePath() == newFiles.at(j).filePath()) {
+                qDebug() << oldDates.at(i)->toString("hh:mm.ssh") << ' ' << newFiles.at(j).lastModified().toString("hh:mm.ssh");
+                if(*(oldDates.at(i)) == newFiles.at(j).lastModified()) {
+                    found = true;
+                    used[j] = true;
+                    break;
+                }
+                else {
+                    qDebug() << "File changed: " << newFiles.at(j).filePath();
+                    QString file = trimm(newFiles.at(j).filePath());
+                    NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(MODIFY_FILE, file,"",true)));
+                    used[j] = true;
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(!found) {
+            QString file = trimm(oldFiles.at(i).filePath());
+            NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(DELETE_FILE, file, "", true)));
+        }
+    }
+    for(int i=0;i<newFiles.size();++i) {
+        if(!used[i]) {
+            qDebug() << " new file";
+            QString file = trimm(newFiles.at(i).filePath());
+            NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(NEW_FILE, file, "", true)));
+        }
+    }
+    delete used;
+}
+
 // Compares local copies of files with copies on server
 // returns true when all files are up to date
 // returns false when files need to be updated
@@ -131,24 +167,28 @@ bool Client::compareLocalCopies()
         }
         else {
           if(timeLocal > timeRemote) {
-            msg = QSharedPointer<Message>(new Message(MODIFY_FILE, localList.at(i), "", true));
+            QString file = trimm(localList.at(i));
+            msg = QSharedPointer<Message>(new Message(MODIFY_FILE, file, "", true));
             NetworkQueue::getInstance().addMessage(msg);
           }
           else {
-            msg = QSharedPointer<Message>(new Message(REQ_FILE, localList.at(i), "", true));
+              QString file = trimm(localList.at(i));
+            msg = QSharedPointer<Message>(new Message(REQ_FILE, file, "", true));
             NetworkQueue::getInstance().addMessage(msg);
           }
         }
       }
     }
     if(!found) {
-      msg = QSharedPointer<Message>(new Message(NEW_FILE, localList.at(i), "", true));
+        QString file = trimm(localList.at(i));
+      msg = QSharedPointer<Message>(new Message(NEW_FILE, file, "", true));
       NetworkQueue::getInstance().addMessage(msg);
     }
   }
   for (int i=0; i<remoteList->size(); i++) {
     if ( used[i] == false ) {
-      msg = QSharedPointer<Message>(new Message(REQ_FILE, remoteList->at(i).first, "", true));
+        QString file = trimm(remoteList->at(i).first);
+      msg = QSharedPointer<Message>(new Message(REQ_FILE, file, "", true));
       NetworkQueue::getInstance().addMessage(msg);
     }
   }
@@ -173,6 +213,9 @@ void Client::logToServer()
   loop.connect(&CommunicationClient::getInstance(), SIGNAL(loginFailed()), SLOT(quit()));
 
   loop.exec();
+//  if(loggedIn)
+//  NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(LIST_FILES, "","",false)));
+
 }
 
 // Terminate client's connection with server and inform server, that client may
@@ -294,6 +337,7 @@ void Client::createAccount() {
             registerUser(login,password);
             if(loggedIn) {
                 createConfigFile();
+                NetworkQueue::getInstance().addMessage(QSharedPointer<Message>(new Message(LIST_FILES, "","",false)));
                 std::cout << "Konto zostalo zarejestrowane na serwerze.\n";
                 if(this -> path != "")
                     FileServer::getInstance().construct(this -> path);
@@ -384,6 +428,7 @@ void Client::showStatus()
 // Displays list of files in monitored folder
 void Client::showMonitoredFiles()
 {
+    FileServer::getInstance().construct(path);
     QTextStream qout(stdout);
     QStringList fileList = FileServer::getInstance().getFileList();
     if(!fileList.empty()) {

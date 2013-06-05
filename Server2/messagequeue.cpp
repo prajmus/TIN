@@ -8,10 +8,24 @@
 #include <QMutexLocker>
 #include <QEventLoop>
 #include <QFile>
+#include <QDir>
 
 MessageQueue::MessageQueue(QObject *parent)
 {
-  connect(this, SIGNAL(messageReady()), this, SLOT(processOperation()));
+    connect(this, SIGNAL(messageReady()), this, SLOT(processOperation()));
+}
+
+QString MessageQueue::trimm(QString path)
+{
+        int i=0;
+        while(true) {
+            if(path.at(i) != '/')
+                ++i;
+            else
+                break;
+        }
+        path.remove(0,i);
+        return path;
 }
 
 MessageQueue::~MessageQueue()
@@ -30,8 +44,11 @@ void MessageQueue::addMessage(QSharedPointer<Message> msg)
     emit messageReady();
 }
 
+
+
 void MessageQueue::transferFinished(QString file, bool sender, QTcpSocket* fromWho)
 {
+    file = trimm(file);
   FileServer::getInstance().addFileToList(file, QDateTime::currentDateTime());
   if(sender)
     return;
@@ -79,6 +96,10 @@ void MessageQueue::processOperation()
     if(msg->opCode == MODIFY_FILE) {
       FileServer::getInstance().removeFile(msg->str1);
     }
+    QFileInfo info(PATH+msg->str1);
+    QString str = info.path();
+    QDir dir(".");
+    dir.mkpath(str);
     FileTransferServer *transfer = new FileTransferServer(PATH+msg->str1, false, msg->sender);
 
     QEventLoop loop;
@@ -89,7 +110,7 @@ void MessageQueue::processOperation()
     loop.exec();
 
     quint16 port = transfer->getPort();
-    msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", false, true, port));
+    msg = QSharedPointer<Message>(new Message(msg->sender, PUSH_FILE, msg->str1, "", true, true, port));
     NetworkQueue::getInstance().addMessage(msg);
   }
   else if (msg->opCode == DELETE_FILE) {
@@ -111,7 +132,7 @@ void MessageQueue::processOperation()
     loop.exec();
 
     quint16 port = transfer->getPort();
-    msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", false,true,port));
+    msg = QSharedPointer<Message>(new Message(msg->sender, PULL_FILE, msg->str1, "", true,true,port));
     NetworkQueue::getInstance().addMessage(msg);
   }
 }

@@ -17,6 +17,7 @@ class MessageQueue : public QObject
     void processOperation();
   protected:
     MessageQueue(QObject *parent = 0);
+    QString trimm(QString path);
   public:
     ~MessageQueue();
     static MessageQueue& getInstance();

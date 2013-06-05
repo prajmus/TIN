@@ -10,12 +10,14 @@ ServerClient::ServerClient(QTcpSocket *socket, QFile *file, bool isSender, QObje
   connect(socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
   connect(socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
   m_fileSize = m_currentlyReceived = 0;
+  m_state = CONNECTED;
 }
 
 
 void ServerClient::sendInit()
 {
   m_socket->write("s");
+  m_socket->flush();
 }
 
 void ServerClient::sendFile()
@@ -92,40 +94,53 @@ void ServerClient::writeBytes(qint64 bytes)
 
 void ServerClient::receiveData()
 {
-  if(m_state != TRANSFER_FINISHED) {
-      if(!m_file->isOpen())
-        m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
+    if(m_state != TRANSFER_FINISHED) {
+        if(!m_file->isOpen())
+            m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
 
-    if (m_state == CONNECTED) {
-      m_state = TRANSFERING;
+        forever
+        {
+            qDebug() << "forever";
+            if (m_state == CONNECTED) {
+                QDataStream in(m_socket);
+                if(m_fileSize == 0)
+                {
+                    if(m_socket->bytesAvailable() < sizeof(quint64))
+                        break;
+                    in >> m_fileSize;
+                    m_state = TRANSFERING;
 
-      QDataStream in(m_socket);
-      in >> m_fileSize;
+                }
+            }
+            else if(m_state == TRANSFERING) {
+                qDebug() << "Reciving file : " << m_fileSize;
+                QByteArray buffer = m_socket->read(m_fileSize);
+                m_currentlyReceived += buffer.size();
+
+                m_file->write(buffer);
+
+                if (m_currentlyReceived == m_fileSize) {
+                    m_file->close();
+                    m_state = TRANSFER_FINISHED;
+
+                    m_socket->disconnectFromHost();
+
+                } else if (m_currentlyReceived > m_fileSize) {
+                    qDebug() << "Received too large file";
+                    m_state = ERROR;
+                    m_file->close();
+                    m_socket->disconnectFromHost();
+                }
+            }
+            else
+                break;
     }
-
-    QByteArray buffer = m_socket->read(m_fileSize);
-    m_currentlyReceived += buffer.size();
-
-    m_file->write(buffer);
-
-    if (m_currentlyReceived == m_fileSize) {
-      m_file->close();
-      m_state = TRANSFER_FINISHED;
-
-      m_socket->disconnectFromHost();
-
-    } else if (m_currentlyReceived > m_fileSize) {
-      qDebug() << "Received too large file";
-      m_state = ERROR;
-      m_file->close();
-      m_socket->disconnectFromHost();
     }
-  }
-  else
-  {
-    QByteArray buffer2 = m_socket->readAll();
-    qDebug() << buffer2;
-  }
+    else
+    {
+        QByteArray buffer2 = m_socket->readAll();
+        qDebug() << buffer2;
+    }
 }
 
 

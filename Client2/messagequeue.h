@@ -11,22 +11,23 @@
 
 class MessageQueue : public QObject
 {
-    Q_OBJECT
-    std::queue< QSharedPointer<Message> > queue;
-    QMutex mutex;
-  private slots:
-    void processOperation();
-    void fileModified(QString);
-    void fileDeleted(QString);
-    void newFile(QString);
-  protected:
-    MessageQueue(QObject *parent = 0);
-  public:
-    ~MessageQueue();
-    static MessageQueue& getInstance();
-    void addMessage(QSharedPointer<Message> msg);
-  signals:
-    void messageReady();
+        Q_OBJECT
+        std::queue< QSharedPointer<Message> > queue;
+        QMutex mutex;
+    private slots:
+        void processOperation();
+    protected:
+        MessageQueue(QObject *parent = 0);
+    public slots:
+        void fileModified(QString);
+        void fileDeleted(QString);
+        void newFile(QString);
+    public:
+        ~MessageQueue();
+        static MessageQueue& getInstance();
+        void addMessage(QSharedPointer<Message> msg);
+    signals:
+        void messageReady();
 };
 
 

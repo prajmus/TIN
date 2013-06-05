@@ -11,7 +11,7 @@ FileTransferClient::FileTransferClient(quint16 port, QFile *file, bool isSender,
 {
   m_parentThread = QThread::currentThread();
   connect(&m_clientThread, SIGNAL(started()), this, SLOT(connectToServer()));
-
+    bitRead = false;
   m_currentlyReceived = m_fileSize = 0;
 }
 
@@ -22,7 +22,7 @@ FileTransferClient::~FileTransferClient()
 
   }
   qDebug() << "off";
-  delete m_file;
+  //delete m_file;
   delete m_socket;
 }
 
@@ -39,7 +39,11 @@ void FileTransferClient::connectToServer()
   qDebug() << "connecting";
   connect(m_socket, SIGNAL(connected()), this, SLOT(signalConnected()));
   connect(m_socket, SIGNAL(disconnected()), this, SLOT(connectionClosedByServer()));
-  connect(m_socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
+  if(m_sender)
+      connect(m_socket, SIGNAL(readyRead()), this, SLOT(sendFile()));
+  else
+      connect(m_socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
+
   connect(m_socket, SIGNAL(bytesWritten(qint64)), this, SLOT(writeBytes(qint64)));
   connect(&m_clientThread, SIGNAL(finished()), this, SLOT(threadFinished()));
   if(m_socket->state() != QTcpSocket::ConnectedState)
@@ -52,8 +56,6 @@ void FileTransferClient::signalConnected()
   qDebug() << "file connected";
   emit connected(true);
   m_state = CONNECTED;
-  if(m_sender)
-    sendFile();
 }
 
 void FileTransferClient::error()
@@ -63,48 +65,66 @@ void FileTransferClient::error()
 
 void FileTransferClient::receiveData()
 {
-  if(m_state < INITIALIZED) {
-    getInit();
-  }
-    if(!m_file->isOpen())
-      m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-  if(m_state != TRANSFER_FINISHED || m_currentlyReceived != m_fileSize) {
-    if (m_state == INITIALIZED) {
-      m_state = TRANSFERING;
-
-      QDataStream in(m_socket);
-      in >> m_fileSize;
+    //      if(m_state < INITIALIZED) {
+    //        getInit();
+    //      }
+    if(!bitRead) {
+        m_socket->read(1);
+        bitRead = true;
     }
-    qDebug() << m_fileSize;
-    QByteArray buffer = m_socket->read(m_fileSize);
-    m_currentlyReceived += buffer.size();
 
-    m_file->write(buffer);
+    if(m_state != TRANSFER_FINISHED) {
+        if(!m_file->isOpen())
+            m_file->open(QIODevice::WriteOnly | QIODevice::Truncate);
+        forever
+        {
+            qDebug() << "forever";
+            if (m_state == CONNECTED) {
+                QDataStream in(m_socket);
+                if(m_fileSize == 0)
+                {
+                    if(m_socket->bytesAvailable() < sizeof(quint64))
+                        break;
+                    in >> m_fileSize;
+                    m_state = TRANSFERING;
 
-    if (m_currentlyReceived == m_fileSize) {
-      m_file->close();
-      delete m_file;
-      m_state = TRANSFER_FINISHED;
+                }
+            }
+            else if(m_state == TRANSFERING) {
+                qDebug() << "File size: " << m_fileSize;
+                QByteArray buffer = m_socket->read(m_fileSize);
+                m_currentlyReceived += buffer.size();
 
-      m_socket->disconnectFromHost();
+                m_file->write(buffer);
 
-    } else if (m_currentlyReceived > m_fileSize) {
-      qDebug() << "Received too large file";
-      m_state = ERROR;
-      m_file->close();
-      m_socket->disconnectFromHost();
+                if (m_currentlyReceived == m_fileSize) {
+                    m_file->close();
+                    delete m_file;
+                    m_state = TRANSFER_FINISHED;
+
+                    m_socket->disconnectFromHost();
+
+                } else if (m_currentlyReceived > m_fileSize) {
+                    qDebug() << "Received too large file";
+                    m_state = ERROR;
+                    m_file->close();
+                    m_socket->disconnectFromHost();
+                }
+            }
+            else
+                break;
+        }
     }
-  }
-  else
-  {
-    QByteArray buffer2 = m_socket->readAll();
-    qDebug() << buffer2;
-  }
+    else {
+        QByteArray buffer2 = m_socket->readAll();
+        qDebug() << buffer2;
+    }
+
 }
 
 void FileTransferClient::getInit()
 {
+  qDebug() << "Getting init";
   m_socket->read(1);
   m_state = INITIALIZED;
   if(m_sender == true)
@@ -113,37 +133,39 @@ void FileTransferClient::getInit()
 
 void FileTransferClient::sendFile()
 {
-  if (m_file->open(QIODevice::ReadOnly))
-    qDebug() << "otwarty plik";
-  m_state = TRANSFERING;
+    m_socket->read(1);
+    if (m_file->open(QIODevice::ReadOnly))
+        qDebug() << "otwarty plik";
+    m_state = TRANSFERING;
 
-  QByteArray fileSize;
-  QDataStream out(&fileSize, QIODevice::WriteOnly);
-  out << m_file->size();
+    QByteArray fileSize;
+    QDataStream out(&fileSize, QIODevice::WriteOnly);
+    out << m_file->size();
+    qDebug() << "Sending file: " <<  m_file->size();
 
-  m_socket->write(fileSize);
+    m_socket->write(fileSize);
 
-  m_buffer = m_file->read(8096);
-  //added if block to file transfer defect fixed
-  if (m_file->atEnd()) {
-    m_state = ALL_READ;
-    m_file->close();
-  }
-  qint64 written = m_socket->write(m_buffer);
+    m_buffer = m_file->read(8096);
+    //added if block to file transfer defect fixed
+    if (m_file->atEnd()) {
+        m_state = ALL_READ;
+        m_file->close();
+    }
+    qint64 written = m_socket->write(m_buffer);
 
 
-  m_buffer = m_buffer.right(m_buffer.size() - written);
+    m_buffer = m_buffer.right(m_buffer.size() - written);
 
-  //added if block to file transfer defect fixed
-  if ((m_state == ALL_READ) && (m_buffer.size() == 0)) {
-    m_state = ALL_WRITTEN;
-    m_socket->flush();
-  }
-
+    //added if block to file transfer defect fixed
+    if ((m_state == ALL_READ) && (m_buffer.size() == 0)) {
+        m_state = ALL_WRITTEN;
+        m_socket->flush();
+    }
 }
 
 void FileTransferClient::writeBytes(qint64 bytes)
 {
+
   if (m_state == ALL_WRITTEN) {
     if (m_socket->bytesToWrite() != 0) {
       return;

@@ -53,7 +53,7 @@ void MessageQueue::processOperation()
       QFileInfo info(path);
       QString str = info.path();
       QDir dir(".");
-      qDebug() << dir.absolutePath() << ' '<< path;
+      qDebug() << "Sending file " << dir.absolutePath() << ' '<< path;
       dir.mkpath(str);
       QFile *file = new QFile(path);
       FileTransferClient *transfer = new FileTransferClient(msg->port, file, true);

@@ -68,6 +68,9 @@ void CommandParser::process()
         else if (command == "manage.remove") {
              Client::getInstance().removeFolderUser(list);
         }
+        else if (command == "refresh") {
+            Client::getInstance().refreshLocalFiles();
+        }
         else {
             std::cout << "Wrong command, try again!\n";
             continue;

@@ -7,11 +7,10 @@
 
 class File
 {
-    QString path;
     QFileInfo* fileInfo;
     FileSystemWatcher* watcher;
 public:
-    File(QString path);
+    File(QFileInfo *);
     ~File();
     QString getPath();
     QFileInfo* getFileInfo();

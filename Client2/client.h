@@ -25,7 +25,7 @@ class Client
   public:
     void run();
     static Client& getInstance();
-
+    QString trimm(QString);
     QStringList* readConfigFile(QFile & file);
     bool loginAvailable(QString login);
     void createAccount();
@@ -51,7 +51,9 @@ class Client
     void removeFolderUser(QStringList loginList);
 
     void listCommands();
-  signals:
+    void refreshLocalFiles();
+    QString trimPath(QString path);
+    signals:
     void finished();
 public slots:
     void aboutToQuitApp();
